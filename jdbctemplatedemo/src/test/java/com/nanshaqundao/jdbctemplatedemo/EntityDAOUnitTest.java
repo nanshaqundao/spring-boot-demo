@@ -23,5 +23,10 @@ public class EntityDAOUnitTest {
                 .thenReturn(4);
 
         assertEquals(4, entityDAO.getCountOfEntity());
+
+        Mockito.when(jdbcTemplate.queryForObject(Mockito.anyString(), Mockito.eq(Integer.class)))
+                .thenReturn(5);
+
+        assertEquals(3, entityDAO.getCountOfEntity());
     }
 }

@@ -11,9 +11,9 @@ public class EntityDAO {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-//    public void setDataSource(DataSource dataSource) {
-//        jdbcTemplate = new JdbcTemplate(dataSource);
-//    }
+    public void setDataSource(DataSource dataSource) {
+        jdbcTemplate = new JdbcTemplate(dataSource);
+    }
 
     public int getCountOfEntity() {
         return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ENTITY", Integer.class);
