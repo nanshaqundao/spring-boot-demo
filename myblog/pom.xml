@@ -19,9 +19,18 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <druid.version>1.1.22</druid.version>
-        <springboot.starter.web.version>2.5.5</springboot.starter.web.version>
+        <springboot.starter.version>2.5.5</springboot.starter.version>
+        <mybatisplus.version>3.5.0</mybatisplus.version>
+        <lombok.version>1.18.22</lombok.version>
+        <mysql.version>8.0.26</mysql.version>
     </properties>
-
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <version>2.5.5</version>
+        </dependency>
+    </dependencies>
 
     <dependencyManagement>
         <dependencies>
@@ -32,13 +41,29 @@
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-web</artifactId>
-                <version>${springboot.starter.web.version}</version>
+                <artifactId>spring-boot-starter-jdbc</artifactId>
+                <version>${springboot.starter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>${mybatisplus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-generator</artifactId>
+                <version>${mybatisplus.version}</version>
+
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-devtools</artifactId>
-                <version>2.5.5</version>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <version>${springboot.starter.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
