@@ -15,6 +15,7 @@
         <module>ch6-ex1</module>
         <module>ch6-ex5</module>
         <module>ch6-ex6</module>
+        <module>ch6-ex7</module>
     </modules>
 
     <properties>
