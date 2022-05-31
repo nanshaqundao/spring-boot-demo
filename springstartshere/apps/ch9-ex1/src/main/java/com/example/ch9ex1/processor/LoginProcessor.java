@@ -1,0 +1,39 @@
+package com.example.ch9ex1.processor;
+
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.RequestScope;
+
+@Component
+@RequestScope
+public class LoginProcessor {
+    private String username;
+    private String password;
+
+    public boolean login() {
+        String username = this.getUsername();
+        String password = this.getPassword();
+
+        if ("jack".equals(username) && "password".equals(password)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+}
