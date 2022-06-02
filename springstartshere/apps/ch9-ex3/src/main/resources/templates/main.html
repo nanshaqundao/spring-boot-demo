@@ -6,6 +6,8 @@
 </head>
 <body>
     <h1>Welcome, <span th:text="${username}"></span></h1>
+    <h3>The login attempt count is <span th:text="${loginCount}"></span> </h3>
+
     <a href="/main?logout=true">Log out</a>
 </body>
 </html>
