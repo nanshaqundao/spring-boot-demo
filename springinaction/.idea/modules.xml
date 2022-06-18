@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/base/base.iml" filepath="$PROJECT_DIR$/base/base.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ch2-ex1/ch2-ex1.iml" filepath="$PROJECT_DIR$/ch2-ex1/ch2-ex1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/springinaction.iml" filepath="$PROJECT_DIR$/.idea/springinaction.iml" />
+    </modules>
+  </component>
+</project>
