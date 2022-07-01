@@ -7,9 +7,6 @@ import com.example.ch03.repo.IngredientRepository;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @Component
 public class IngredientByIdConverter implements Converter<String, Ingredient> {
 

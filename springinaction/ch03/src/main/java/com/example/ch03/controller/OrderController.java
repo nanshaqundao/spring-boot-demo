@@ -1,6 +1,7 @@
 package com.example.ch03.controller;
 
 import com.example.ch03.model.TacoOrder;
+import com.example.ch03.repo.OrderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -17,6 +18,11 @@ import javax.validation.Valid;
 @RequestMapping("/orders")
 @SessionAttributes("tacoOrder")
 public class OrderController {
+    private OrderRepository orderRepository;
+
+    public OrderController(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
+    }
 
     @GetMapping("/current")
     public String orderForm() {
@@ -30,6 +36,7 @@ public class OrderController {
         if (errors.hasErrors()) {
             return "orderForm";
         }
+        orderRepository.save(tacoOrder);
 
         log.info("Order Submitted: {}", tacoOrder);
         sessionStatus.setComplete();
