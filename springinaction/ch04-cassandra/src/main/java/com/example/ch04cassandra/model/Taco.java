@@ -1,6 +1,7 @@
 package com.example.ch04cassandra.model;
 
 import com.datastax.oss.driver.api.core.uuid.Uuids;
+import com.example.ch04cassandra.util.TacoUDRUtils;
 import lombok.Data;
 import org.springframework.data.cassandra.core.cql.Ordering;
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
@@ -13,6 +14,7 @@ import javax.validation.constraints.Size;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Data

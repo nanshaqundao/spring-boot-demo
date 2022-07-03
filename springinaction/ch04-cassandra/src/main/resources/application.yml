@@ -2,5 +2,5 @@ spring:
   data:
     cassandra:
       keyspace-name: tacocloud
-      schema-action: recreate
+      schema-action: create_if_not_exists
       local-datacenter: datacenter1
