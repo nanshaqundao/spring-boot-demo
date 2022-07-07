@@ -14,7 +14,7 @@ import java.util.Collection;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name="TACO_USER")
-public class User implements UserDetails {
+public class TacoUser implements UserDetails {
     private static final long serialVersionUID = 1L;
 
     @Id
