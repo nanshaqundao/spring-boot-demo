@@ -4,7 +4,9 @@ import com.example.ch05basic.model.Ingredient;
 import com.example.ch05basic.model.Ingredient.Type;
 import com.example.ch05basic.model.Taco;
 import com.example.ch05basic.model.TacoOrder;
+import com.example.ch05basic.model.TacoUser;
 import com.example.ch05basic.repository.IngredientRepository;
+import com.example.ch05basic.repository.TacoUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +14,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,11 +25,13 @@ import java.util.stream.Collectors;
 public class DesignTacoController {
 
     private final IngredientRepository ingredientRepo;
+    private final TacoUserRepository tacoUserRepository;
 
     @Autowired
     public DesignTacoController(
-            IngredientRepository ingredientRepo) {
+            IngredientRepository ingredientRepo, TacoUserRepository tacoUserRepository) {
         this.ingredientRepo = ingredientRepo;
+        this.tacoUserRepository = tacoUserRepository;
     }
 
     @ModelAttribute
@@ -42,13 +47,20 @@ public class DesignTacoController {
     }
 
     @ModelAttribute(name = "tacoOrder")
-    public TacoOrder order() {
+    public TacoOrder tacoOrder() {
         return new TacoOrder();
     }
 
     @ModelAttribute(name = "taco")
     public Taco taco() {
         return new Taco();
+    }
+
+    @ModelAttribute(name = "tacoUser")
+    public TacoUser tacoUser(Principal principal){
+        String username = principal.getName();
+        TacoUser tacoUser = tacoUserRepository.findByUsername(username);
+        return tacoUser;
     }
 
     @GetMapping
