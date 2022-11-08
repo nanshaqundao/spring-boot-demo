@@ -5,3 +5,10 @@ spring:
   h2:
     console:
       enabled: true
+
+server:
+  port: 8443
+  ssl:
+    key-store: file:D:\github\nanshaqundao\spring-boot-demo\springinaction\ch05-basic\src\main\resources\mykeys.jks
+    key-store-password: password
+    key-password: password
