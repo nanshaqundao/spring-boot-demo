@@ -1,13 +1,28 @@
 package org.example.reactivetweets;
 
+import akka.NotUsed;
+import akka.actor.ActorSystem;
+import akka.stream.javadsl.Sink;
+import akka.stream.javadsl.Source;
+
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Demo {
     public static final Hashtag AKKA = new Hashtag("#akka");
-    public static class Author{
+
+    public static void main(String[] args) {
+        final ActorSystem system = ActorSystem.create("reactive-tweets");
+        Source<Tweet, NotUsed> tweets;
+        final Source<Author, NotUsed> authors =
+                tweets.filter(t -> t.hashtags().contains(AKKA)).map(t -> t.author);
+        authors.runWith(Sink.foreach(System.out::println, system));
+    }
+
+    public static class Author {
         public final String handle;
+
         public Author(String handle) {
             this.handle = handle;
         }
