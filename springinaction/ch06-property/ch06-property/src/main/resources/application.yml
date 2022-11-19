@@ -23,3 +23,7 @@ server:
 
 greating:
   welcome: -= Mighty ${spring.application.name} =-
+
+taco:
+  orders:
+    pageSize: 3

@@ -1,6 +1,7 @@
 package com.example.ch06property.controller;
 
 
+import com.example.ch06property.config.TacoOrderConfig;
 import com.example.ch06property.model.TacoOrder;
 import com.example.ch06property.model.TacoUser;
 import com.example.ch06property.repository.OrderRepository;
@@ -20,9 +21,12 @@ import javax.validation.Valid;
 @SessionAttributes("tacoOrder")
 public class OrderController {
 
-    private OrderRepository orderRepo;
+    private final TacoOrderConfig tacoOrderConfig;
 
-    public OrderController(OrderRepository orderRepo) {
+    private final OrderRepository orderRepo;
+
+    public OrderController(TacoOrderConfig tacoOrderConfig, OrderRepository orderRepo) {
+        this.tacoOrderConfig = tacoOrderConfig;
         this.orderRepo = orderRepo;
     }
 
@@ -64,10 +68,11 @@ public class OrderController {
     public String ordersForUser(
             @AuthenticationPrincipal TacoUser tacoUser, Model model) {
 
-        Pageable pageable = PageRequest.of(0, 20);
+        Pageable pageable = PageRequest.of(0, tacoOrderConfig.getPageSize());
         model.addAttribute("tacoOrders",
                 orderRepo.findByTacoUserOrderByCreatedAtDesc(tacoUser, pageable));
-        System.out.println("orders for user");;
+        System.out.println("orders for user, pagesize: " + tacoOrderConfig.getPageSize());
+        ;
         return "orderList";
     }
 
