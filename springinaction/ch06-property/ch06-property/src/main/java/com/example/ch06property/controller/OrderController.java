@@ -10,10 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 
 import javax.validation.Valid;
@@ -30,7 +27,22 @@ public class OrderController {
     }
 
     @GetMapping("/current")
-    public String orderForm() {
+    public String orderForm(@AuthenticationPrincipal TacoUser tacoUser, @ModelAttribute TacoOrder tacoOrder) {
+        if (tacoOrder.getDeliveryName() == null) {
+            tacoOrder.setDeliveryName(tacoUser.getFullname());
+        }
+        if (tacoOrder.getDeliveryStreet() == null) {
+            tacoOrder.setDeliveryStreet(tacoUser.getStreet());
+        }
+        if (tacoOrder.getDeliveryCity() == null) {
+            tacoOrder.setDeliveryCity(tacoUser.getCity());
+        }
+        if (tacoOrder.getDeliveryState() == null) {
+            tacoOrder.setDeliveryState(tacoUser.getState());
+        }
+        if (tacoOrder.getDeliveryZip() == null) {
+            tacoOrder.setDeliveryZip(tacoUser.getZip());
+        }
         return "orderForm";
     }
 
