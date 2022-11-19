@@ -17,7 +17,7 @@ logging:
 server:
   port: 8443
   ssl:
-    key-store: mykeys.jks
+    key-store: file:src/main/resources/mykeys.jks
     key-store-password: password
     key-password: password
 

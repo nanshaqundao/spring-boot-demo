@@ -22,6 +22,9 @@ public class TacoOrder implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @ManyToOne
+    private TacoUser tacoUser;
+
     private Timestamp createdAt = Timestamp.valueOf(LocalDateTime.now());
 
     @NotBlank(message="Delivery name is required")
