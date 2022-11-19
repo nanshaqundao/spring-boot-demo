@@ -17,7 +17,7 @@ logging:
 server:
   port: 8443
   ssl:
-    key-store: file:D:\github\nanshaqundao\spring-boot-demo\springinaction\ch05-basic\src\main\resources\mykeys.jks
+    key-store: mykeys.jks
     key-store-password: password
     key-password: password
 
