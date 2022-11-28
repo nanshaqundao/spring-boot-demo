@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    generate-unique-name: false
+    name: tacocloud
+  h2:
+    console:
+      enabled: true
+
+logging:
+  file:
+    path: target
+    file: springboot-local.log
+  level:
+    root: WARN
+    org.springframework.security: DEBUG
+
+server:
+  port: 8443
+  ssl:
+    key-store: file:src/main/resources/mykeys.jks
+    key-store-password: password
+    key-password: password
+
+greating:
+  welcome: -= Mighty ${spring.application.name} =-
+
+taco:
+  orders:
+    pageSize: 3
