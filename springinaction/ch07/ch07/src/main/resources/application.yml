@@ -5,6 +5,12 @@ spring:
   h2:
     console:
       enabled: true
+  jpa:
+    properties:
+      jakarta:
+        persistence:
+          sharedCache:
+            mode: ALL
 
 logging:
   file:
