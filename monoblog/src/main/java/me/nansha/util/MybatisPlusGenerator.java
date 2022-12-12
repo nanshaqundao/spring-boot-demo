@@ -1,2 +1,4 @@
-package me.nansha.util;public class MybatisPlusGenerator {
+package me.nansha.util;
+
+public class MybatisPlusGenerator {
 }
