@@ -5,6 +5,8 @@ import com.example.ch07.repository.TacoRepository;
 import com.fasterxml.jackson.annotation.OptBoolean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -28,7 +30,9 @@ public class TacoController {
     }
 
     @GetMapping("/{id}")
-    public Optional<Taco> tacoById(@PathVariable("id") Long id){
-        return tacoRepository.findById(id);
+    public ResponseEntity<Taco> tacoById(@PathVariable("id") Long id) {
+        Optional<Taco> tacoOptional = tacoRepository.findById(id);
+        return tacoOptional.map(taco -> new ResponseEntity<>(taco, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
     }
 }
