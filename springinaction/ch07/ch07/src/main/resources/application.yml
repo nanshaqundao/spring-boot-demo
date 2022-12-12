@@ -11,6 +11,7 @@ spring:
         persistence:
           sharedCache:
             mode: ALL
+    open-in-view: false
 
 logging:
   file:
