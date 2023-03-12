@@ -1,6 +1,9 @@
+name: default.yaml
 spring:
   profiles:
     active: local
+    group:
+      "local": "local-overwrite, preview-logging"
 
 
 openai:
