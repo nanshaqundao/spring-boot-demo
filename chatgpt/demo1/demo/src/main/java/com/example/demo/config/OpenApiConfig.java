@@ -16,8 +16,8 @@ public class OpenApiConfig {
 
     private Info apiInfo() {
         return new Info()
-                .title("Human cloning API")
-                .description("API for creating clone who will fight in the clones wars")
+                .title("Demo demos API")
+                .description("nothing to say")
                 .version("2.0")
                 .contact(apiContact())
                 .license(apiLicence());
