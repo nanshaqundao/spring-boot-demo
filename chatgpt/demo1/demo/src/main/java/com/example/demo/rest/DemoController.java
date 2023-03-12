@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.rest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
