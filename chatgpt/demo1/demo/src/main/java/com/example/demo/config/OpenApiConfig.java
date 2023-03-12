@@ -31,8 +31,8 @@ public class OpenApiConfig {
 
     private Contact apiContact() {
         return new Contact()
-                .name("Erwan LE TUTOUR")
-                .email("erwanletutour.elt@gmail.com")
-                .url("https://github.com/ErwanLT");
+                .name("Nan Sha")
+                .email("nanshaqundao@github")
+                .url("https://github.com/nanshaqundao");
     }
 }
