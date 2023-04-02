@@ -54,8 +54,6 @@ public class SurveySubmissionService {
             welcomeNextButton.click();
 
 
-
-
             // # Select the "Yes" radio button for question 1
             WebElement some = driver.findElement(By.xpath("//*[@id='surveyQuestions']/fieldset/div/div[1]/span/label"));
             some.click();
@@ -64,10 +62,41 @@ public class SurveySubmissionService {
             WebElement next_button = driver.findElement(By.id("NextButton"));
             next_button.click();
 
+
+            // Dined in at restaurant
+            WebElement dineInOption = driver.findElement(By.xpath("//*[@id='textR000005.1']"));
+            dineInOption.click();
+            WebElement dineInOptionNextButton = driver.findElement(By.id("NextButton"));
+            dineInOptionNextButton.click();
+
+
             // to fill in the 3 text fields of 12 digit code on top fo the receipt
             // to fill and amount spent on the receipt
             // to fill in the email address
 
+            // Input the 12 digit code
+            String[] codes = surveyData.getReceiptCode().split("-");
+            WebElement codeInput1 = driver.findElement(By.id("CN1"));
+            codeInput1.sendKeys(codes[0]);
+            WebElement codeInput2 = driver.findElement(By.id("CN2"));
+            codeInput2.sendKeys(codes[1]);
+            WebElement codeInput3 = driver.findElement(By.id("CN3"));
+            codeInput3.sendKeys(codes[2]);
+
+            // Input the amount spent
+            double amount = surveyData.getSpentAmount();
+
+
+            String amountStr = Double.toString(amount);
+            String[] amountParts = amountStr.split("\\.");
+            WebElement amountSpentPounds = driver.findElement(By.id("AmountSpent1"));
+            amountSpentPounds.sendKeys(amountParts[0]);
+            WebElement amountSpentPence = driver.findElement(By.id("AmountSpent2"));
+            amountSpentPence.sendKeys(amountParts[1]);
+
+            // Click the "Start" button
+            WebElement startButton = driver.findElement(By.id("NextButton"));
+            startButton.click();
 
 
             // Find and fill out the receipt code input field
@@ -84,8 +113,6 @@ public class SurveySubmissionService {
 
             // Wait for the survey questions to load and answer them
             // Note: The following code assumes you know the structure of the survey and the IDs or other locators for the specific questions and buttons.
-
-
 
 
             // Continue to answer other survey questions
