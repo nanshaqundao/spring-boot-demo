@@ -19,8 +19,11 @@ public class SurveyController {
     @PostMapping("/submit")
     public ResponseEntity<String> submitSurvey(@RequestBody SurveyData surveyData) {
         try {
-            surveySubmissionService.submitSurvey(surveyData);
-            return ResponseEntity.ok("Survey submitted successfully.");
+            if (surveySubmissionService.submitSurvey(surveyData)) {
+                return ResponseEntity.ok("Survey submitted successfully.");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Automation submission failed.");
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to submit survey: " + e.getMessage());
         }
