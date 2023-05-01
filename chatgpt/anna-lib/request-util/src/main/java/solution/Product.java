@@ -1,4 +1,4 @@
-package lib;
+package solution;
 
 import model.EnvelopeMessage;
 
@@ -11,7 +11,7 @@ public abstract class Product {
         this.envelopeMessage = envelopeMessage;
     }
 
-    public abstract String getRequestURL();
+    public abstract String getRequestUrl();
     public abstract Map<String, String> getRequestHeaders();
     public abstract String getRequestBody();
 }

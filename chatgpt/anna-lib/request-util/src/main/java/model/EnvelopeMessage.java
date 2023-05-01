@@ -1,6 +1,6 @@
 package model;
 
-public class EnvelopeDocument{
+public class EnvelopeMessage {
     private String documentId;
     private MetaData metaData;
     private Payload payload;

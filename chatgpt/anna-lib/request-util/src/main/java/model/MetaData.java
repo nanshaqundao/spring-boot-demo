@@ -3,6 +3,7 @@ package model;
 public class MetaData {
     private String documentId;
     private String envelopeId;
+    private TradeType tradeType;
 
     public String getDocumentId() {
         return documentId;
@@ -18,5 +19,13 @@ public class MetaData {
 
     public void setEnvelopeId(String envelopeId) {
         this.envelopeId = envelopeId;
+    }
+
+    public TradeType getTradeType() {
+        return tradeType;
+    }
+
+    public void setTradeType(TradeType tradeType) {
+        this.tradeType = tradeType;
     }
 }

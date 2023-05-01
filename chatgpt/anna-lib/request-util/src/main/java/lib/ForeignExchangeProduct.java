@@ -1,12 +1,12 @@
 package lib;
 
-import model.EnvelopeDocument;
+import model.EnvelopeMessage;
 
 import java.util.Map;
 
 public class ForeignExchangeProduct extends Product{
-    public ForeignExchangeProduct(EnvelopeDocument envelopeDocument) {
-        super(envelopeDocument);
+    public ForeignExchangeProduct(EnvelopeMessage envelopeMessage) {
+        super(envelopeMessage);
     }
 
     @Override
