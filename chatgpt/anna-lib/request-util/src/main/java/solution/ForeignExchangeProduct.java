@@ -11,9 +11,10 @@ public class ForeignExchangeProduct extends Product {
     }
 
     @Override
-    public String getRequestUrl() {
+    public String getRequestURL() {
         return null;
     }
+
 
     @Override
     public Map<String, String> getRequestHeaders() {
