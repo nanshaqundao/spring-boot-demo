@@ -20,6 +20,24 @@ public class Library {
         }
     }
 
+    public Supplier<ApiRequestProvider> getReferenceAPIRequest(String reference, CalculateAPI api) {
+        switch (reference) {
+            case "outerValue":
+                // Return a Supplier that will call the appropriate API to get the outerValue
+                return () -> new ApiRequestProvider() {
+                    @Override
+                    public ApiRequest getApiRequest() {
+                        return new ApiRequest("outerValue", "GET", "http://localhost:8080/outerValue");
+                    }
+                };
+            case "crossRate":
+                // Return a Supplier that will call the appropriate API to get the crossRate
+                return () -> api.getCrossRate();
+            default:
+                return null;
+        }
+    }
+
     public void processRequestBodies(Map<String, ApiRequestBody> requestBodies, CalculateAPI api) {
         Pattern placeholderPattern = Pattern.compile("\\[(.*?)\\]");
 
