@@ -1,6 +1,6 @@
-package solution;
+package pack.solution;
 
-import model.EnvelopeMessage;
+import pack.solution.model.EnvelopeMessage;
 
 public class ProductFactory {
     public static Product createProduct(EnvelopeMessage envelopeMessage) {

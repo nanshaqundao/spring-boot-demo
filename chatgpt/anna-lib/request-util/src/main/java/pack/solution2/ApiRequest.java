@@ -1,4 +1,4 @@
-package solution2;
+package pack.solution2;
 
 public class ApiRequest {
     private String url;

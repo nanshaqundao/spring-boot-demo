@@ -1,11 +1,8 @@
 package demo;
 
-import model.EnvelopeMessage;
-import model.MetaData;
-import model.Payload;
-import model.TradeType;
-import solution.Product;
-import solution.ProductFactory;
+import pack.solution.model.EnvelopeMessage;
+import pack.solution.Product;
+import pack.solution.ProductFactory;
 
 public class Demo1 {
     public static void main(String[] args) {

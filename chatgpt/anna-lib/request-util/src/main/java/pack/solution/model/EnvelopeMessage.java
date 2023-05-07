@@ -1,4 +1,4 @@
-package model;
+package pack.solution.model;
 
 public class EnvelopeMessage {
     private String documentId;

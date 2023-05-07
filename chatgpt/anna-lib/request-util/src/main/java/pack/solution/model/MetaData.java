@@ -1,4 +1,4 @@
-package model;
+package pack.solution.model;
 
 public class MetaData {
     private String documentId;

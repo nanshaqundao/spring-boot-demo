@@ -1,4 +1,4 @@
-package solution2;
+package pack.solution2;
 
 import java.util.Map;
 import java.util.function.Supplier;

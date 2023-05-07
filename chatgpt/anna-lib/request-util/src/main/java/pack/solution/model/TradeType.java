@@ -1,4 +1,4 @@
-package model;
+package pack.solution.model;
 
 public enum TradeType {
     UNKNOWN("Unknown"), FX("FX"), COMMODITY("COMMODITY"), IR_SWAP("IR_SWAP");

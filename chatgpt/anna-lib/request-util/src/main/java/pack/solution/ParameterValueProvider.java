@@ -1,6 +1,6 @@
-package solution;
+package pack.solution;
 
-import model.EnvelopeMessage;
+import pack.solution.model.EnvelopeMessage;
 
 @FunctionalInterface
 public interface ParameterValueProvider {

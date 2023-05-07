@@ -1,9 +1,9 @@
 package demo;
 
-import model.EnvelopeMessage;
-import model.MetaData;
-import model.Payload;
-import model.TradeType;
+import pack.solution.model.EnvelopeMessage;
+import pack.solution.model.MetaData;
+import pack.solution.model.Payload;
+import pack.solution.model.TradeType;
 
 public class Constants {
     public static final EnvelopeMessage ENVELOPE_MESSAGE_COMMODITY = new EnvelopeMessage() {
