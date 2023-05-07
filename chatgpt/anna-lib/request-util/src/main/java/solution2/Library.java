@@ -27,12 +27,17 @@ public class Library {
                 return () -> new ApiRequestProvider() {
                     @Override
                     public ApiRequest getApiRequest() {
-                        return new ApiRequest("outerValue", "GET", "http://localhost:8080/outerValue");
+                        return new ApiRequest("outerValue", "http://localhost:8080/outerValue");
                     }
                 };
             case "crossRate":
                 // Return a Supplier that will call the appropriate API to get the crossRate
-                return () -> api.getCrossRate();
+                return () -> new ApiRequestProvider() {
+                    @Override
+                    public ApiRequest getApiRequest() {
+                        return new ApiRequest("ad", "http://localhost:8080/ad");
+                    }
+                };
             default:
                 return null;
         }
