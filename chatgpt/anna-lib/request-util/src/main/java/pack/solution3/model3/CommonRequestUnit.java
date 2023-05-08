@@ -1,12 +1,18 @@
 package pack.solution3.model3;
 
+import com.google.gson.annotations.Expose;
+
+import java.util.HashMap;
 import java.util.Map;
 
 public class CommonRequestUnit {
+    @Expose
     private String url;
+    @Expose
     private String httpMethod;
-    private Map<String, String> parametersMap;
-
+    @Expose
+    private Map<String, String> parametersMap = new HashMap<>();
+    @Expose
     private CommonRequestBodyUnit requestBody;
 
     public String getUrl() {
