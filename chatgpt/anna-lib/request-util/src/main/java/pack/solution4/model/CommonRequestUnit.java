@@ -1,4 +1,4 @@
-package pack.solution4.model3;
+package pack.solution4.model;
 
 import com.google.gson.annotations.Expose;
 

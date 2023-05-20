@@ -3,8 +3,8 @@ package pack.solution4.adapter;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import pack.solution4.model3.CommonRequestBodyUnit;
-import pack.solution4.model3.IReferencedValue;
+import pack.solution4.model.CommonRequestBodyUnit;
+import pack.solution4.model.IReferencedValue;
 
 import java.io.IOException;
 import java.util.Map;
