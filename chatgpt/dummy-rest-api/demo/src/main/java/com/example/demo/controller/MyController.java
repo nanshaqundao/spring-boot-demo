@@ -4,6 +4,8 @@ import com.example.demo.model.RefResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api")
 public class MyController {
@@ -25,6 +27,23 @@ public class MyController {
 
     @PostMapping("/isin")
     public String getIsin(@RequestBody String requestBody) {
-        return "isin-" + requestBody;
+        return "ISIN-" + generateRandomString(10);
+    }
+
+    public static String generateRandomString(int length) {
+        StringBuilder sb = new StringBuilder();
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+
+        // Ensure the string starts with a non-digit character
+        char firstChar = (char) (Character.toUpperCase(uuid.charAt(0)) % 26 + 'A');
+        sb.append(firstChar);
+
+        // Append the remaining characters from the UUID string
+        for (int i = 1; i < length; i++) {
+            char randomChar = (char) Character.toUpperCase(uuid.charAt(i) % 26 + 'A');
+            sb.append(randomChar);
+        }
+
+        return sb.toString();
     }
 }
