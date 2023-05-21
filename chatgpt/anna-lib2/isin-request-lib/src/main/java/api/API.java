@@ -1,5 +1,6 @@
 package api;
 
+import model.AnnaCodeResponse;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -31,5 +32,17 @@ public class API {
                 .block();
     }
 
-
+    public static AnnaCodeResponse apiAnnaCall(WebClient webClient, String url, Map<String, String> paramMap, String requestBody) {
+        // Making the API call
+        String uri = url + paramMap.entrySet().stream()
+                .map(entry -> entry.getKey() + "=" + entry.getValue())
+                .collect(Collectors.joining("&", "?", ""));
+        String responseJson = webClient.get()
+                .uri(uri)
+                .retrieve()
+//                .onStatus(HttpStatusCode::isError, ClientResponse::createException)
+                .bodyToMono(String.class)
+                .block();
+        return AnnaCodeResponse.fromJson(responseJson);
+    }
 }

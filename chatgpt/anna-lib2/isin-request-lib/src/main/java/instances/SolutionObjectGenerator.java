@@ -48,6 +48,23 @@ public class SolutionObjectGenerator {
         return request;
     }
 
+    public static CommonRequestBodyUnit generateAnnaDataRequestBody() {
+        CommonRequestBodyUnit requestBody = new CommonRequestBodyUnit();
+        requestBody.getStringPropertiesMap()
+                .put("srcCode", "USD");
+        return requestBody;
+    }
+
+    public static CommonRequestUnit generateAnnaDataCommonRequest() {
+        CommonRequestUnit request = new CommonRequestUnit();
+        request.setUrl("/api/annaData");
+        request.setHttpMethod("GET");
+        request.getParametersMap()
+                .put("srcCode", "ab");
+        request.setRequestBody(generateAnnaDataRequestBody());
+        return request;
+    }
+
     public static String getRequestJson(CommonRequestUnit commonRequestUnit) {
         CommonRequestBodyUnitTypeAdapter requestBodyAdapter = new CommonRequestBodyUnitTypeAdapter();
         Gson gson = new GsonBuilder()
