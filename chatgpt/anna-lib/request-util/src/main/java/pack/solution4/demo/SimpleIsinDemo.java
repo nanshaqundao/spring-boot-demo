@@ -6,6 +6,7 @@ import mock.FxIsinMock;
 import org.springframework.web.reactive.function.client.WebClient;
 import pack.solution4.adapter.CommonRequestBodyUnitTypeAdapter;
 import pack.solution4.adapter.CommonRequestUnitTypeAdapter;
+import pack.solution4.api.API;
 import pack.solution4.instances.SolutionObjectGenerator;
 import pack.solution4.model.CommonRequestBodyUnit;
 import pack.solution4.model.CommonRequestUnit;
@@ -26,5 +27,11 @@ public class SimpleIsinDemo {
 
         String requestJson = gson.toJson(isinRequestBody);
         System.out.println(requestJson);
+
+        System.out.println("hi");
+
+        String isinResponse = API.apiPostCall(webClient, isinRequest.getUrl(), isinRequest.getParametersMap(), requestJson);
+        System.out.println(isinResponse);
+        System.out.printf("end");
     }
 }
