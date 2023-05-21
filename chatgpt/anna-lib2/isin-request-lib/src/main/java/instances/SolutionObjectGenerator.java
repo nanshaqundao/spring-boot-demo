@@ -2,6 +2,7 @@ package instances;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import helper.APIHelper;
 import org.springframework.web.reactive.function.client.WebClient;
 import adapter.CommonRequestBodyUnitTypeAdapter;
 import adapter.CommonRequestUnitTypeAdapter;
@@ -11,17 +12,38 @@ import model.CommonRequestUnit;
 import model.FunctionalValue;
 
 public class SolutionObjectGenerator {
-    public static CommonRequestBodyUnit generateIsinCommonRequestBody(WebClient webClient) {
+    public static CommonRequestBodyUnit generateIsinCommonRequestBody(WebClient webClient, APIHelper apiHelper) {
 
         CommonRequestBodyUnit requestBody = new CommonRequestBodyUnit();
         requestBody.getStringPropertiesMap()
                 .put("NotionalCurrency1", "USD");
         requestBody.getStringPropertiesMap()
                 .put("NotionalCurrency2", "EUR");
+
         requestBody.getFunctionPropertiesMap()
-                .put("ExpiryDate",
+                .put("srcCode",
                         new FunctionalValue(x ->
-                                API.apiGetCall(webClient, "http://localhost:8080/api/refData", generateRefDataRequestBody().getStringPropertiesMap())));
+                                apiHelper.getAnnaCodeResponse(webClient,
+                                                "http://localhost:8080/api/annaData",
+                                                generateAnnaDataCommonRequest().getParametersMap(),
+                                                generateAnnaDataRequestBody().toString())
+                                        .getSrcCode()));
+        requestBody.getFunctionPropertiesMap()
+                .put("annaCode",
+                        new FunctionalValue(x ->
+                                apiHelper.getAnnaCodeResponse(webClient,
+                                                "http://localhost:8080/api/annaData",
+                                                generateAnnaDataCommonRequest().getParametersMap(),
+                                                generateAnnaDataRequestBody().toString())
+                                        .getAnnaCode()));
+        requestBody.getFunctionPropertiesMap()
+                .put("crossCode",
+                        new FunctionalValue(x ->
+                                apiHelper.getAnnaCodeResponse(webClient,
+                                                "http://localhost:8080/api/annaData",
+                                                generateAnnaDataCommonRequest().getParametersMap(),
+                                                generateAnnaDataRequestBody().toString())
+                                        .getCrossCode()));
         return requestBody;
     }
 
@@ -29,7 +51,7 @@ public class SolutionObjectGenerator {
         CommonRequestUnit request = new CommonRequestUnit();
         request.setUrl("/api/isin");
         request.setHttpMethod("POST");
-        request.setRequestBody(generateIsinCommonRequestBody(webClient));
+        request.setRequestBody(generateIsinCommonRequestBody(webClient, new APIHelper()));
         return request;
     }
 

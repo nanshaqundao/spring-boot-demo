@@ -1,18 +1,9 @@
 package model;
 
 public class AnnaCodeResponse {
-    private String ExpiryDate;
     private String srcCode;
     private String annaCode;
     private String crossCode;
-
-    public String getExpiryDate() {
-        return ExpiryDate;
-    }
-
-    public void setExpiryDate(String expiryDate) {
-        ExpiryDate = expiryDate;
-    }
 
     public String getSrcCode() {
         return srcCode;
