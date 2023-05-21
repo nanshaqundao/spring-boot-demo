@@ -9,7 +9,7 @@ public class CommonRequestBodyUnit {
     @Expose
     private Map<String, String> stringPropertiesMap = new HashMap<>();
     @Expose
-    private Map<String, FunctionalValue> referencedPropertiesMap = new HashMap<>();
+    private Map<String, FunctionalValue> functionPropertiesMap = new HashMap<>();
 
     public Map<String, String> getStringPropertiesMap() {
         return stringPropertiesMap;
@@ -19,11 +19,11 @@ public class CommonRequestBodyUnit {
         this.stringPropertiesMap = stringPropertiesMap;
     }
 
-    public Map<String, FunctionalValue> getReferencedPropertiesMap() {
-        return referencedPropertiesMap;
+    public Map<String, FunctionalValue> getFunctionPropertiesMap() {
+        return functionPropertiesMap;
     }
 
-    public void setReferencedPropertiesMap(Map<String, FunctionalValue> referencedPropertiesMap) {
-        this.referencedPropertiesMap = referencedPropertiesMap;
+    public void setFunctionPropertiesMap(Map<String, FunctionalValue> functionPropertiesMap) {
+        this.functionPropertiesMap = functionPropertiesMap;
     }
 }

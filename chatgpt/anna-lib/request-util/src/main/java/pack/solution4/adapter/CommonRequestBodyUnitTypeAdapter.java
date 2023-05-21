@@ -21,8 +21,8 @@ public class CommonRequestBodyUnitTypeAdapter extends TypeAdapter<CommonRequestB
             }
         }
 
-        if (requestBody.getReferencedPropertiesMap() != null) {
-            for (Map.Entry<String, IReferencedValue> entry : requestBody.getReferencedPropertiesMap().entrySet()) {
+        if (requestBody.getFunctionPropertiesMap() != null) {
+            for (Map.Entry<String, IReferencedValue> entry : requestBody.getFunctionPropertiesMap().entrySet()) {
                 out.name(entry.getKey()).value(entry.getValue().getStringValue());
             }
         }
