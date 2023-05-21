@@ -4,6 +4,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import pack.solution4.model.CommonRequestBodyUnit;
+import pack.solution4.model.FunctionalValue;
 import pack.solution4.model.IReferencedValue;
 
 import java.io.IOException;
@@ -22,8 +23,11 @@ public class CommonRequestBodyUnitTypeAdapter extends TypeAdapter<CommonRequestB
         }
 
         if (requestBody.getFunctionPropertiesMap() != null) {
-            for (Map.Entry<String, IReferencedValue> entry : requestBody.getFunctionPropertiesMap().entrySet()) {
-                out.name(entry.getKey()).value(entry.getValue().getStringValue());
+            for (Map.Entry<String, FunctionalValue> entry : requestBody.getFunctionPropertiesMap().entrySet()) {
+                String key = entry.getKey();
+                FunctionalValue functionalValue = entry.getValue();
+                String value = functionalValue.getActualValue();
+                out.name(key).value(value);
             }
         }
 
