@@ -8,12 +8,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 public class MyController {
     @GetMapping("/refData")
-    public String getRefData(String srcCode) {
+    public String getRefData(@RequestParam String srcCode) {
+        System.out.println("Request received with details: " + srcCode);
         return "refData";
     }
 
     @GetMapping("/annaData")
-    public ResponseEntity<RefResponse> getAnnaData(String srcCode) {
+    public ResponseEntity<RefResponse> getAnnaData(@RequestParam String srcCode) {
+        System.out.println("Request received with details: " + srcCode);
         RefResponse refResponse = new RefResponse();
         refResponse.setSrcCode(srcCode);
         refResponse.setAnnaCode("annaCode" + srcCode);
