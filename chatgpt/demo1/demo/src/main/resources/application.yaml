@@ -8,4 +8,4 @@ spring:
 
 openai:
   api:
-    key: abcdefghijklmnopqrstuvwxyz
+    key: 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
