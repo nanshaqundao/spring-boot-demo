@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.model.RefResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
@@ -16,21 +17,23 @@ public class MyController {
     }
 
     @GetMapping("/annaData")
-    public ResponseEntity<RefResponse> getAnnaData(@RequestParam String srcCode) {
+    public Mono<ResponseEntity<RefResponse>> getAnnaData(@RequestParam String srcCode) {
         System.out.println("Request received with details: " + srcCode);
         RefResponse refResponse = new RefResponse();
         refResponse.setSrcCode(srcCode);
         refResponse.setAnnaCode("annaCode" + srcCode);
         refResponse.setCrossCode("crossCode" + srcCode);
-        return ResponseEntity.ok(refResponse);
+        return Mono.just(ResponseEntity.ok(refResponse));
     }
 
     @PostMapping("/isin")
-    public String getIsin(@RequestBody String requestBody) {
-        return "ISIN-" + generateRandomString(10);
+    public Mono<ResponseEntity<String>> getIsin(@RequestBody String requestBody) {
+        String result =  "ISIN-" + generateRandomString(10);
+        System.out.println("Request received with details: " + requestBody);
+        return Mono.just(ResponseEntity.ok(result));
     }
 
-    public static String generateRandomString(int length) {
+    private String generateRandomString(int length) {
         StringBuilder sb = new StringBuilder();
         String uuid = UUID.randomUUID().toString().replace("-", "");
 
