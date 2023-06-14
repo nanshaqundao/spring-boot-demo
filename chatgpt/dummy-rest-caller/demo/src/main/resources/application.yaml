@@ -1,0 +1,8 @@
+webclient:
+  base-url: http://localhost:8080
+  connection-timeout-in-seconds: 5
+  read-timeout-in-seconds: 5
+  write-timeout-in-seconds: 5
+  response-timeout-in-seconds: 5
+server:
+  port: 8081
