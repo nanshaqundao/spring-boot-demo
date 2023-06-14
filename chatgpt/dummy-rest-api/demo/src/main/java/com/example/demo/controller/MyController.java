@@ -28,9 +28,11 @@ public class MyController {
 
     @PostMapping("/isin")
     public Mono<ResponseEntity<String>> getIsin(@RequestBody String requestBody) {
-        String result =  "ISIN-" + generateRandomString(10);
+        String result = "ISIN-" + generateRandomString(10);
         System.out.println("Request received with details: " + requestBody);
-        return Mono.just(ResponseEntity.ok(result));
+        //return Mono.just(ResponseEntity.ok(result));
+
+        return Mono.just(ResponseEntity.internalServerError().body("Error" + result));
     }
 
     private String generateRandomString(int length) {
