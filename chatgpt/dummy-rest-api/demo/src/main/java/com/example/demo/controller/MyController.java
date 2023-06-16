@@ -32,7 +32,7 @@ public class MyController {
     System.out.println("Request received with details: " + requestBody);
     // return Mono.just(ResponseEntity.ok(result));
 
-    return Mono.just(ResponseEntity.internalServerError().body("Error" + result));
+    return Mono.just(ResponseEntity.ok().body("Error" + result));
   }
 
   private String generateRandomString(int length) {
