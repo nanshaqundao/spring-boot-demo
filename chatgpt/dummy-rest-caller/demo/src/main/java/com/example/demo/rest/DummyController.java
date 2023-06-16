@@ -11,14 +11,19 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("/dummy")
 public class DummyController {
-    private final DummyService dummyService;
+  private final DummyService dummyService;
 
-    public DummyController(DummyService dummyService) {
-        this.dummyService = dummyService;
-    }
+  public DummyController(DummyService dummyService) {
+    this.dummyService = dummyService;
+  }
 
-    @GetMapping("/a")
-    public Mono<ResponseEntity<String>> getIsin() {
-        return dummyService.getIsin().map(ResponseEntity::ok);
-    }
+  @GetMapping("/a")
+  public Mono<ResponseEntity<String>> getIsin() {
+    return dummyService
+        .getIsin()
+        .map(
+            response -> ResponseEntity.status(response.getStatusCode()).body(response.getBody()))
+        .onErrorResume(
+            e -> Mono.just(ResponseEntity.status(500).body("Real Internal Error")));
+  }
 }
