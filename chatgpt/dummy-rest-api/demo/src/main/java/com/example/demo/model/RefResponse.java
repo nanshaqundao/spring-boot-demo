@@ -1,9 +1,18 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import java.util.List;
+
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+
+@JsonInclude(NON_NULL)
 public class RefResponse {
     private String srcCode;
     private String annaCode;
     private String crossCode;
+
+    private List<Payload> payloadList;
 
     public String getCrossCode() {
         return crossCode;
@@ -27,5 +36,13 @@ public class RefResponse {
 
     public void setAnnaCode(String annaCode) {
         this.annaCode = annaCode;
+    }
+
+    public List<Payload> getPayloadList() {
+        return payloadList;
+    }
+
+    public void setPayloadList(List<Payload> payloadList) {
+        this.payloadList = payloadList;
     }
 }
