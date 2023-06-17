@@ -19,7 +19,6 @@ public class DummyClient {
 
   private final WebClient webClientWithTimeout;
 
-
   public DummyClient(WebClient webClientWithTimeout) {
     this.webClientWithTimeout = webClientWithTimeout;
 
@@ -30,7 +29,7 @@ public class DummyClient {
 
     return webClientWithTimeout
         .post()
-        .uri((UriBuilder uriBuilder)  -> uriBuilder.path("/api/isin").build())
+        .uri((UriBuilder uriBuilder) -> uriBuilder.path("/api/isin").build())
         .body(BodyInserters.fromValue(name))
         .exchangeToMono(
             clientResponse -> {
@@ -54,15 +53,23 @@ public class DummyClient {
         .retryWhen(retrySPec());
   }
 
-    private RetryBackoffSpec retrySPec() {
-        return Retry.backoff(3, Duration.ofSeconds(3))
-                .jitter(0.5)
-                .doBeforeRetry(info -> System.out.println("doBeforeRetry: " + info.totalRetriesInARow()))
-                .filter(throwable -> !(throwable instanceof ClientException))
-                .onRetryExhaustedThrow(
-                        (retryBackoffSpec, retrySignal) -> {
-                            System.out.println("Retry exhausted");
-                            return new OtherException("Retry exhausted");
-                        });
-    }
+  private RetryBackoffSpec retrySPec() {
+    return Retry.backoff(3, Duration.ofSeconds(1))
+        .jitter(0.5)
+        .doBeforeRetry(
+            info ->
+                System.out.println(
+                    "doBeforeRetry: about to start retry: " + (info.totalRetriesInARow() + 1)))
+        .filter(throwable -> !(throwable instanceof ClientException))
+        .doAfterRetry(
+            info -> {
+              System.out.println(
+                  "doAfterRetry: just finished retry: " + (info.totalRetriesInARow() + 1) + " " + info);
+            })
+        .onRetryExhaustedThrow(
+            (retryBackoffSpec, retrySignal) -> {
+              System.out.println("Retry exhausted");
+              return new OtherException("Retry exhausted");
+            });
+  }
 }

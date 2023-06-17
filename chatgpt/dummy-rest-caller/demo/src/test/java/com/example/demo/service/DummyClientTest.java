@@ -1,7 +1,8 @@
 package com.example.demo.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.example.demo.exception.OtherException;
-import com.example.demo.exception.ServerException;
 import java.io.IOException;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -43,5 +44,43 @@ public class DummyClientTest {
                     instanceof
                     OtherException) // after retry exhausted, it should throw OtherException
         .verify();
+  }
+
+  @Test
+  public void getIsin_2xx4xx_withRetry() {
+
+    for (int i = 0; i < 3; i++) {
+      mockWebServer.enqueue(
+          new MockResponse()
+              .setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+              .setBody("Server error " + (i + 1)));
+    }
+
+    mockWebServer.enqueue(
+        new MockResponse().setResponseCode(HttpStatus.OK.value()).setBody("Server good " + (4)));
+
+    StepVerifier.create(dummyClient.getIsin("name"))
+        .assertNext(
+            x -> {
+              assertEquals(HttpStatus.OK, x.getStatusCode());
+              assertEquals("Server good 4", x.getBody());
+            }) // after retry exhausted, it should throw OtherException
+        .verifyComplete();
+  }
+
+  @Test
+  public void getIsin_2xx4xx() {
+
+
+    mockWebServer.enqueue(
+            new MockResponse().setResponseCode(HttpStatus.OK.value()).setBody("Server good" ));
+
+    StepVerifier.create(dummyClient.getIsin("name"))
+            .assertNext(
+                    x -> {
+                      assertEquals(HttpStatus.OK, x.getStatusCode());
+                      assertEquals("Server good", x.getBody());
+                    }) // after retry exhausted, it should throw OtherException
+            .verifyComplete();
   }
 }
