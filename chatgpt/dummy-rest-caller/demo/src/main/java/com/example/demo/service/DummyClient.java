@@ -7,6 +7,7 @@ import com.example.demo.model.DummyWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriBuilder;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 import reactor.util.retry.RetryBackoffSpec;
@@ -17,11 +18,10 @@ import java.time.Duration;
 public class DummyClient {
 
   private final WebClient webClientWithTimeout;
-  private final RetryBackoffSpec retrySpec;
 
-  public DummyClient(WebClient webClientWithTimeout, RetryBackoffSpec retrySpec) {
+
+  public DummyClient(WebClient webClientWithTimeout) {
     this.webClientWithTimeout = webClientWithTimeout;
-    this.retrySpec = retrySpec;
 
     System.out.println("DummyService: " + webClientWithTimeout);
   }
@@ -30,7 +30,7 @@ public class DummyClient {
 
     return webClientWithTimeout
         .post()
-        .uri(uriBuilder -> uriBuilder.path("/api/isin").build())
+        .uri((UriBuilder uriBuilder)  -> uriBuilder.path("/api/isin").build())
         .body(BodyInserters.fromValue(name))
         .exchangeToMono(
             clientResponse -> {
@@ -51,6 +51,18 @@ public class DummyClient {
                     .map(x -> new DummyWrapper(clientResponse.statusCode(), x));
               }
             })
-        .retryWhen(retrySpec);
+        .retryWhen(retrySPec());
   }
+
+    private RetryBackoffSpec retrySPec() {
+        return Retry.backoff(3, Duration.ofSeconds(3))
+                .jitter(0.5)
+                .doBeforeRetry(info -> System.out.println("doBeforeRetry: " + info.totalRetriesInARow()))
+                .filter(throwable -> !(throwable instanceof ClientException))
+                .onRetryExhaustedThrow(
+                        (retryBackoffSpec, retrySignal) -> {
+                            System.out.println("Retry exhausted");
+                            return new OtherException("Retry exhausted");
+                        });
+    }
 }
