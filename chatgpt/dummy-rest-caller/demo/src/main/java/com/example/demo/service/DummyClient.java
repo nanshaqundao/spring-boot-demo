@@ -64,7 +64,10 @@ public class DummyClient {
         .doAfterRetry(
             info -> {
               System.out.println(
-                  "doAfterRetry: just finished retry: " + (info.totalRetriesInARow() + 1) + " " + info);
+                  "doAfterRetry: just finished retry: "
+                      + (info.totalRetriesInARow() + 1)
+                      + " "
+                      + info);
             })
         .onRetryExhaustedThrow(
             (retryBackoffSpec, retrySignal) -> {

@@ -17,14 +17,11 @@ public class DummyController {
     this.dummyService = dummyService;
   }
 
-
   @GetMapping("/isin")
   public Mono<ResponseEntity<String>> getIsin(@RequestParam String name) {
     return dummyService
         .getIsin(name)
-        .map(
-            response -> ResponseEntity.status(response.getStatusCode()).body(response.getBody()))
-        .onErrorResume(
-            e -> Mono.just(ResponseEntity.status(500).body("Real Internal Error")));
+        .map(response -> ResponseEntity.status(response.getStatusCode()).body(response.getBody()))
+        .onErrorResume(e -> Mono.just(ResponseEntity.status(500).body("Real Internal Error")));
   }
 }
