@@ -4,6 +4,9 @@ import com.example.demo.exception.ClientException;
 import com.example.demo.exception.OtherException;
 import com.example.demo.exception.ServerException;
 import com.example.demo.model.DummyWrapper;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -33,14 +36,11 @@ public class DummyClient {
         .body(BodyInserters.fromValue(name))
         .exchangeToMono(
             clientResponse -> {
-              if (clientResponse.statusCode().is2xxSuccessful()
-                  || clientResponse.statusCode().is4xxClientError()) {
-                System.out.println("2xx or 4xx within exchangeToMono");
-                return clientResponse
-                    .bodyToMono(String.class)
-                    .map(x -> new DummyWrapper(clientResponse.statusCode(), x));
-              } else if (clientResponse.statusCode().is5xxServerError()) {
-                System.out.println("5xx within exchangeToMono");
+              if (clientResponse.statusCode().is5xxServerError()
+                  || clientResponse.statusCode().isSameCodeAs(HttpStatus.REQUEST_TIMEOUT)
+                  || clientResponse.statusCode().isSameCodeAs(HttpStatus.TOO_MANY_REQUESTS)) {
+                System.out.println(
+                    "Call get isin failed with error: " + clientResponse.statusCode());
                 return clientResponse
                     .bodyToMono(String.class)
                     .flatMap(body -> Mono.error(new ServerException("Server error: " + body)));
@@ -60,7 +60,7 @@ public class DummyClient {
             info ->
                 System.out.println(
                     "doBeforeRetry: about to start retry: " + (info.totalRetriesInARow() + 1)))
-        .filter(throwable -> !(throwable instanceof ClientException))
+        .filter(throwable -> (throwable instanceof ServerException))
         .doAfterRetry(
             info -> {
               System.out.println(
