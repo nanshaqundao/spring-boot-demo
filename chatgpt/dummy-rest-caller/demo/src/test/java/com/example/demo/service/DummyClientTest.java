@@ -2,7 +2,6 @@ package com.example.demo.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.example.demo.exception.ClientException;
 import com.example.demo.exception.OtherException;
 import java.io.IOException;
 import okhttp3.mockwebserver.MockResponse;
