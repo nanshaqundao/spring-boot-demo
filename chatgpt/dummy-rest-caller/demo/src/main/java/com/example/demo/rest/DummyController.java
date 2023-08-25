@@ -24,4 +24,12 @@ public class DummyController {
         .map(response -> ResponseEntity.status(response.getStatusCode()).body(response.getBody()))
         .onErrorResume(e -> Mono.just(ResponseEntity.status(500).body("Real Internal Error")));
   }
+
+  @GetMapping("/refData")
+    public Mono<ResponseEntity<String>> getRefData(@RequestParam String srcCode) {
+        return dummyService
+            .getRefData(srcCode)
+            .map(response -> ResponseEntity.status(200).body(response))
+            .onErrorResume(e -> Mono.just(ResponseEntity.status(500).body("Real Internal Error")));
+    }
 }

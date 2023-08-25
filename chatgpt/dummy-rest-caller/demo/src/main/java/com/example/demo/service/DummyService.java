@@ -39,4 +39,8 @@ public class DummyService {
         "Taking previously cached value for " + name + " with value " + dummyWrapper);
     return Mono.just(dummyWrapper);
   }
+
+    public Mono<String> getRefData(String srcCode) {
+        return dummyClient.getRefData(srcCode);
+    }
 }

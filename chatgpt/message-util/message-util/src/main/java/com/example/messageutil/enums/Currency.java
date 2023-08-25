@@ -1,2 +1,5 @@
-package com.example.messageutil.enums;public class Currency {
+package com.example.messageutil.enums;
+
+public enum Currency {
+    GBP, USD, CNY, JPY;
 }

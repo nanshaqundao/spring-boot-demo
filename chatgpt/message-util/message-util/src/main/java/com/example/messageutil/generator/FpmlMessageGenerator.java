@@ -1,2 +1,3 @@
-package com.example.messageutil.generator;public class FpmlMessageGenerator {
-}
+package com.example.messageutil.generator;
+
+public class FpmlMessageGenerator {}

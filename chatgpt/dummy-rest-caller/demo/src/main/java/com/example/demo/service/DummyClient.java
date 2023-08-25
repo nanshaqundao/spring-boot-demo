@@ -75,4 +75,27 @@ public class DummyClient {
               return new OtherException("Retry exhausted");
             });
   }
+
+    public Mono<String> getRefData(String srcCode) {
+        return webClientWithTimeout
+                .get()
+                .uri((UriBuilder uriBuilder) -> uriBuilder.path("/api/refData").queryParam("srcCode", srcCode).build())
+                .exchangeToMono(
+                        clientResponse -> {
+                            if (clientResponse.statusCode().is5xxServerError()
+                                    || clientResponse.statusCode().isSameCodeAs(HttpStatus.REQUEST_TIMEOUT)
+                                    || clientResponse.statusCode().isSameCodeAs(HttpStatus.TOO_MANY_REQUESTS)) {
+                                System.out.println(
+                                        "Call get refData failed with error: " + clientResponse.statusCode());
+                                return clientResponse
+                                        .bodyToMono(String.class)
+                                        .flatMap(body -> Mono.error(new ServerException("Server error: " + body)));
+                            } else {
+                                return clientResponse
+                                        .bodyToMono(String.class)
+                                        .map(x -> x);
+                            }
+                        })
+                .retryWhen(retrySPec());
+    }
 }
