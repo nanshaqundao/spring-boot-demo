@@ -4,6 +4,7 @@ import com.example.demo.exception.ClientException;
 import com.example.demo.exception.OtherException;
 import com.example.demo.exception.ServerException;
 import com.example.demo.model.DummyWrapper;
+import com.example.demo.model.RefResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -76,7 +77,7 @@ public class DummyClient {
             });
   }
 
-    public Mono<String> getRefData(String srcCode) {
+    public Mono<RefResponse> getRefData(String srcCode) {
         return webClientWithTimeout
                 .get()
                 .uri((UriBuilder uriBuilder) -> uriBuilder.path("/api/refData").queryParam("srcCode", srcCode).build())
@@ -92,7 +93,7 @@ public class DummyClient {
                                         .flatMap(body -> Mono.error(new ServerException("Server error: " + body)));
                             } else {
                                 return clientResponse
-                                        .bodyToMono(String.class)
+                                        .bodyToMono(RefResponse.class)
                                         .map(x -> x);
                             }
                         })

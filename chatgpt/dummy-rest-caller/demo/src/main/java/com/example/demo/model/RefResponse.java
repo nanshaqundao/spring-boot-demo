@@ -12,6 +12,8 @@ public class RefResponse {
     private String annaCode;
     private String crossCode;
 
+    private String id;
+
     private List<Payload> payloadList;
 
     public String getCrossCode() {
@@ -44,5 +46,13 @@ public class RefResponse {
 
     public void setPayloadList(List<Payload> payloadList) {
         this.payloadList = payloadList;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

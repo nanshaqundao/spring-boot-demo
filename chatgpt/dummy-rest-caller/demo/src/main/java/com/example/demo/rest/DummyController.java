@@ -1,5 +1,6 @@
 package com.example.demo.rest;
 
+import com.example.demo.model.RefResponse;
 import com.example.demo.service.DummyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,10 +27,10 @@ public class DummyController {
   }
 
   @GetMapping("/refData")
-    public Mono<ResponseEntity<String>> getRefData(@RequestParam String srcCode) {
+    public Mono<ResponseEntity<RefResponse>> getRefData(@RequestParam String srcCode) {
         return dummyService
             .getRefData(srcCode)
             .map(response -> ResponseEntity.status(200).body(response))
-            .onErrorResume(e -> Mono.just(ResponseEntity.status(500).body("Real Internal Error")));
+            .onErrorResume(e -> Mono.just(ResponseEntity.status(500).body(new RefResponse())));
     }
 }

@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.exception.OtherException;
 import com.example.demo.model.DummyWrapper;
+import com.example.demo.model.RefResponse;
 import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -40,7 +41,7 @@ public class DummyService {
     return Mono.just(dummyWrapper);
   }
 
-    public Mono<String> getRefData(String srcCode) {
+    public Mono<RefResponse> getRefData(String srcCode) {
         return dummyClient.getRefData(srcCode);
     }
 }
