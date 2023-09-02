@@ -5,24 +5,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.Random;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
 public class MyController {
-  @GetMapping("/refData")
-  public String getRefData(@RequestParam String srcCode) {
-    System.out.println("Request received with details: " + srcCode);
-    return "refData";
-  }
 
-  @GetMapping("/annaData")
+  @GetMapping("/refData")
   public Mono<ResponseEntity<RefResponse>> getAnnaData(@RequestParam String srcCode) {
     System.out.println("Request received with details: " + srcCode);
     RefResponse refResponse = new RefResponse();
     refResponse.setSrcCode(srcCode);
     refResponse.setAnnaCode("annaCode" + srcCode);
     refResponse.setCrossCode("crossCode" + srcCode);
+    refResponse.setId(new Random().nextInt(1000));
     return Mono.just(ResponseEntity.ok(refResponse));
   }
 
