@@ -23,6 +23,17 @@ public class MyController {
     return Mono.just(ResponseEntity.ok(refResponse));
   }
 
+  @GetMapping("/demo")
+  public Mono<ResponseEntity<RefResponse>> getDemoData() {
+    System.out.println("Request received with details: " + "£");
+    RefResponse refResponse = new RefResponse();
+    refResponse.setSrcCode("£");
+    refResponse.setAnnaCode("annaCode" + "£");
+    refResponse.setCrossCode("crossCode" + "£");
+    refResponse.setId(new Random().nextInt(1000));
+    return Mono.just(ResponseEntity.ok(refResponse));
+  }
+
   @PostMapping("/isin")
   public Mono<ResponseEntity<String>> getIsin(@RequestBody String requestBody) {
     String result = "ISIN-" + generateRandomString(10);

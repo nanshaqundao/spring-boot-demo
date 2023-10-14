@@ -9,7 +9,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @JsonInclude(NON_NULL)
 public class RefResponse {
   private String srcCode;
-  private Integer id;g
+  private Integer id;
   private String annaCode;
   private String crossCode;
 
