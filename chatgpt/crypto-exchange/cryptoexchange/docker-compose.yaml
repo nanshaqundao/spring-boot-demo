@@ -1,0 +1,31 @@
+version: "4"
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: crypto_exchange-postgresdb
+    environment:
+      POSTGRES_DB: crypto_exchange
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pg-data:/var/lib/postgresql/data
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+volumes:
+  pg-data:
+
+#services:
+#  mysql:
+#    image: mysql:8
+#    container_name: mysqldb
+#    environment:
+#      MYSQL_ROOT_PASSWORD: mysql
+#    ports:
+#      - "3316:3306"
+#    volumes:
+#      - ./mysql-data:/var/lib/mysql
+#      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+#volumes:
+#    mysql-data:
