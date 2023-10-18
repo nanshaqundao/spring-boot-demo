@@ -20,11 +20,11 @@ public class UserAuthenticationController {
     this.userAuthenticationService = userAuthenticationService;
   }
 
-    @PostMapping("/register")
-    public RegisterResponse register(@RequestBody RegisterRequest registerRequest) {
-        userAuthenticationService.register(registerRequest);
-        return new RegisterResponse("User registered successfully");
-    }
+  @PostMapping("/register")
+  public RegisterResponse register(@RequestBody RegisterRequest registerRequest) {
+    userAuthenticationService.register(registerRequest);
+    return new RegisterResponse("User registered successfully");
+  }
 
   @PostMapping("/login")
   public LoginResponse login(@RequestBody LoginRequest loginRequest) {
