@@ -42,7 +42,11 @@ public class SecurityConfiguration {
         .csrf(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(
             authorize ->
-                authorize.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated())
+                authorize
+                    .requestMatchers("/api/auth/**", "/v3/api-docs/**", "/swagger-ui/**")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
         .oauth2ResourceServer(
             oAuth2ResourceServerConfigurer ->
                 oAuth2ResourceServerConfigurer.jwt(Customizer.withDefaults()))
