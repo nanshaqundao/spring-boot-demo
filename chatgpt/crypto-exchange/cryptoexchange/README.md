@@ -7,6 +7,7 @@ This project contains source code to demonstrate how to work with JWT with Sprin
 1. Clone this repository
 2. Run `docker compose up -d` to start the database
 3. Run `mvn spring-boot:run`
+4. Use `http://localhost:8080/swagger-ui/index.html` to access the Swagger UI
 
 ## How to test
 
