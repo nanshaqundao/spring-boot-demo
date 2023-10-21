@@ -6,6 +6,8 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import me.nansha.cryptoexchange.security.JwtAuthenticationFilter;
+import me.nansha.cryptoexchange.security.JwtProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,6 +26,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity
 @Configuration
@@ -36,14 +39,15 @@ public class SecurityConfiguration {
   }
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+  public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, JwtProvider jwtProvider)
+      throws Exception {
     return httpSecurity
         .cors(Customizer.withDefaults())
         .csrf(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(
             authorize ->
                 authorize
-                    .requestMatchers("/api/auth/**", "/v3/api-docs/**", "/swagger-ui/**")
+                    .requestMatchers("/api/auth/users/login", "/api/auth/users/register", "/v3/api-docs/**", "/swagger-ui/**")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
@@ -57,6 +61,8 @@ public class SecurityConfiguration {
                 exception
                     .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
                     .accessDeniedHandler(new BearerTokenAccessDeniedHandler()))
+        .addFilterBefore(
+            new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
         .build();
   }
 
