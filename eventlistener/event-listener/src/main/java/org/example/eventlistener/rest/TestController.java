@@ -21,7 +21,7 @@ public class TestController {
     }
 
     @GetMapping("/publishAddOrderEvent")
-    public void publishAddOrderEventt sta() {
+    public void publishAddOrderEvent() {
         applicationContext.publishEvent(new OrderEvent(new Order("Order 1"), "add"));
     }
 }
