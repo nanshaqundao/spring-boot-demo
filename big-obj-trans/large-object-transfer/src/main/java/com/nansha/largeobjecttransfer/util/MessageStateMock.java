@@ -1,4 +1,6 @@
-package com.nansha.largeobjecttransfer;
+package com.nansha.largeobjecttransfer.util;
+
+import com.nansha.largeobjecttransfer.model.MessageState;
 
 import java.util.Random;
 

@@ -1,4 +1,4 @@
-package com.nansha.largeobjecttransfer;
+package com.nansha.largeobjecttransfer.model;
 
 public class MessageState {
     private String fieldA;

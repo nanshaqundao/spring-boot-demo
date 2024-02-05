@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.nansha</groupId>
-	<artifactId>large-object-transfer</artifactId>
+	<artifactId>large-object-transfer-server-side</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>large-object-transfer</name>
 	<description>large-object-transfer</description>
@@ -35,6 +35,11 @@
 			<groupId>io.projectreactor</groupId>
 			<artifactId>reactor-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.2.0</version>
 		</dependency>
 	</dependencies>
 
