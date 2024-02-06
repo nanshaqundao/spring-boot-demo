@@ -26,8 +26,12 @@ public class MessageController {
             @RequestParam int pageNum,
             @RequestParam int pageSize
     ) {
-
-        List<MessageState> messageStates = messageService.getMessages(pageNum, pageSize);
+        List<MessageState> messageStates;
+        if (pageNum < 5) {
+             messageStates = messageService.getMessages(pageNum, pageSize);
+        } else {
+             messageStates = messageService.getMessages(pageNum, 2);
+        }
         return ResponseEntity.ok(messageStates);
     }
 }
