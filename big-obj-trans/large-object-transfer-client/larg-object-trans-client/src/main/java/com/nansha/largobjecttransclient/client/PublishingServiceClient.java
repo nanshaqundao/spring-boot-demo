@@ -1,5 +1,6 @@
 package com.nansha.largobjecttransclient.client;
 
+import com.nansha.largobjecttransclient.exception.TransferException;
 import com.nansha.largobjecttransclient.model.MessageState;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -34,11 +35,11 @@ public class PublishingServiceClient {
         .retrieve()
         .onStatus(
             status -> status.is4xxClientError() || status.is5xxServerError(),
-            clientResponse -> Mono.error(new RuntimeException("Error fetching message states")))
+            clientResponse -> Mono.error(new TransferException("Error fetching message states")))
         .bodyToFlux(MessageState.class)
         .retryWhen(
             Retry.fixedDelay(5, Duration.ofSeconds(5))
-                .filter(throwable -> throwable instanceof RuntimeException))
+                .filter(throwable -> throwable instanceof TransferException))
         .collectList();
   }
 }
