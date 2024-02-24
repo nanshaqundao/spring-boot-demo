@@ -15,14 +15,12 @@ public class PublishingServiceClient {
 
   private final WebClient webClient;
 
-  public PublishingServiceClient(WebClient.Builder webClientBuilder) {
-    this.webClient =
-        webClientBuilder
-            .baseUrl("http://localhost:8080/message")
-            .build(); // Adjust the base URL accordingly
-  }
+    public PublishingServiceClient(WebClient webClient) {
+        this.webClient = webClient;
+    }
 
-  public Mono<List<MessageState>> getMessageStates(int page, int size) {
+
+    public Mono<List<MessageState>> getMessageStates(int page, int size) {
     return this.webClient
         .get()
         .uri(
@@ -38,7 +36,7 @@ public class PublishingServiceClient {
             clientResponse -> Mono.error(new TransferException("Error fetching message states")))
         .bodyToFlux(MessageState.class)
         .retryWhen(
-            Retry.fixedDelay(5, Duration.ofSeconds(5))
+            Retry.fixedDelay(3, Duration.ofSeconds(3))
                 .filter(throwable -> throwable instanceof TransferException))
         .collectList();
   }
