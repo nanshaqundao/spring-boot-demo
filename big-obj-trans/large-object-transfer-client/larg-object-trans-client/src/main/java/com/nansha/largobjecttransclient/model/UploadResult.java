@@ -16,4 +16,12 @@ public class UploadResult {
     public boolean isSuccess() {
         return success;
     }
+
+    @Override
+    public String toString() {
+        return "UploadResult{" +
+                "fileName='" + fileName + '\'' +
+                ", success=" + success +
+                '}';
+    }
 }

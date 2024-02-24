@@ -3,7 +3,7 @@ package com.nansha.largobjecttransclient.client;
 import com.nansha.largobjecttransclient.model.UploadResult;
 
 public class SftpClient {
-  private String name;
+  private final String name;
 
   public SftpClient(String name) {
     this.name = name;
