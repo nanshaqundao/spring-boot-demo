@@ -8,8 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class LargObjectTransClientApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(LargObjectTransClientApplication.class, args);
-    }
-
+  public static void main(String[] args) {
+    SpringApplication.run(LargObjectTransClientApplication.class, args);
+  }
 }

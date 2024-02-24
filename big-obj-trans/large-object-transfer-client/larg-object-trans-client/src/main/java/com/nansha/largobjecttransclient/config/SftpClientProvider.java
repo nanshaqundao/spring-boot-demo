@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SftpClientProvider {
-    @Bean
-    public SftpClient sftpClient() {
-        return new SftpClient("sftpClient");
-    }
+  @Bean
+  public SftpClient sftpClient() {
+    return new SftpClient("sftpClient");
+  }
 }
