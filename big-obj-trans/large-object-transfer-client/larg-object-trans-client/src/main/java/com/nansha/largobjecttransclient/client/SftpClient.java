@@ -2,6 +2,7 @@ package com.nansha.largobjecttransclient.client;
 
 import com.nansha.largobjecttransclient.model.UploadResult;
 
+// Mock purpose SftpClient
 public class SftpClient {
   private final String name;
 
