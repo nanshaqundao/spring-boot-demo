@@ -5,6 +5,7 @@ import com.nansha.largobjecttransclient.service.ReportGenerator;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -19,8 +20,15 @@ public class ReportGeneratorScheduler {
 
     @Scheduled(cron = "0 0 1 * * ?") // Runs at 1 AM every day
     public void generateReport() {
-        allMessages.clear(); // Resetting the list for a new report
-        reportGenerator.fetchAndProcessPage(0);
-        allMessages = reportGenerator.getAllMessages();
+        allMessages = new ArrayList<>();
+        reportGenerator.fetchAndProcessPage(0, allMessages)
+                .subscribe(
+                        null,
+                        error -> System.out.println("Error fetching message states: " + error),
+                        () -> {
+                            allMessages.forEach(messageState -> System.out.println("Message: " + messageState));
+                        }
+                );
+
     }
 }

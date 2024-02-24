@@ -20,7 +20,7 @@ class ReportGeneratorTest {
     private PublishingServiceClient publishingServiceClient;
 
     @InjectMocks
-    private ReportGenerator reportGenerator;
+    private ReportGeneratorV0 reportGenerator;
 
     @BeforeEach
     void setUp() {
@@ -38,7 +38,7 @@ class ReportGeneratorTest {
 
         when(publishingServiceClient.getMessageStates(anyInt(), anyInt()))
                 .thenReturn(Mono.just(mockResponse))
-                .thenReturn(Mono.just(Arrays.asList())); // Simulate an empty page for the second call
+                .thenReturn(Mono.just(List.of())); // Simulate an empty page for the second call
 
         // Execute the method to be tested
         reportGenerator.fetchAndProcessPage(0);

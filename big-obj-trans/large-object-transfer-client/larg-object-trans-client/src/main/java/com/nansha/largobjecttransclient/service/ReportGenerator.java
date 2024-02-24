@@ -16,70 +16,50 @@ public class ReportGenerator {
     private final PublishingServiceClient client;
     private final int pageSize = 4; // Configurable page size
 
-    public List<MessageState> getAllMessages() {
-        return allMessages;
-    }
-
-    private List<MessageState> allMessages;
     private static final Logger logger = LoggerFactory.getLogger(ReportGenerator.class);
 
     public ReportGenerator(PublishingServiceClient client) {
         this.client = client;
-        this.allMessages = new ArrayList<>();
     }
 
 
-    public void fetchAndProcessPage(int pageNumber) {
-        Mono<List<MessageState>> messageStatesMono = client.getMessageStates(pageNumber, pageSize);
 
-        messageStatesMono.subscribe(
-                messageStates -> {
+
+    public Mono<Void> fetchAndProcessPage(int pageNumber, List<MessageState> accumulatedStates) {
+        // Directly working with Mono<List<MessageState>>
+        return client.getMessageStates(pageNumber, pageSize)
+                .flatMap(messageStates -> {
+                    List<MessageState> newAccumulatedStates = new ArrayList<>(accumulatedStates);
+                    newAccumulatedStates.addAll(messageStates);
                     if (!messageStates.isEmpty()) {
-                        allMessages.addAll(messageStates);
+                        // Process the fetched page
+                        // Here, add your logic to handle messageStates, like saving them or further processing
                         if (messageStates.size() == pageSize) {
-                            fetchAndProcessPage(pageNumber + 1); // Fetch next page if the current page is full
+                            // If full page, there might be more to fetch
+                            return fetchAndProcessPage(pageNumber + 1,newAccumulatedStates);
                         } else {
-                            finalizeReport(); // Finalize the report if this page is not full, indicating it's the last page
+                            // This was the last page
+                            return finalizeReport(newAccumulatedStates);
                         }
                     } else {
-                        finalizeReport(); // Finalize the report if no messages are returned
+                        // No data found, possibly finalize or handle as needed
+                        return finalizeReport(newAccumulatedStates);
                     }
-                },
-                error -> handleError(error)
-        );
+                });
     }
 
-    private void handleError(Throwable throwable) {
-        logger.error("Error fetching message states: ", throwable);
-        // Implement further error handling logic here, such as alerting or retry mechanisms
-    }
-
-    private void finalizeReport() {
-        if (!allMessages.isEmpty()) {
-            createReport(allMessages);
-        } else {
-            logger.info("No messages to report.");
-            // Handle the case where there are no messages to report
-        }
-    }
-
-    private void createReport(List<MessageState> messages) {
-        // Logic to create and send the report
-        // This is a placeholder, replace it with actual report generation logic
-        logger.info("Creating report with {} messages.", messages.size());
-        messages.forEach(message -> logger.info("Message: {}", message));
-        // For example, format messages into a CSV, generate a PDF, or aggregate data into a summary
-        // For demonstration, let's assume a simple CSV format
-        StringBuilder reportBuilder = new StringBuilder("FieldA,FieldB,FieldC,FieldD\n");
-        for (MessageState message : messages) {
-            reportBuilder.append(message.getFieldA()).append(",")
-                    .append(message.getFieldB()).append(",")
-                    .append(message.getFieldC()).append(",")
-                    .append(message.getFieldD()).append("\n");
-        }
-
-        // Example: Save the report to a file, send it via email, or store in a database
-        // For simplicity, let's just print the report content
-        System.out.println(reportBuilder.toString());
+    private Mono<Void> finalizeReport(List<MessageState> messageStates) {
+        // Here, implement your logic to finalize the report with the accumulated messageStates
+        // For example, saving the report, logging, or sending it over SFTP
+        // Return Mono<Void> to signify completion of this step
+        // Implement the finalization logic here, working with all accumulated message states
+        return Mono.fromRunnable(() -> {
+            if (!messageStates.isEmpty()) {
+                logger.info("Finalizing report with {} entries.", messageStates.size());
+                // Further processing, such as generating and sending the report
+            } else {
+                logger.info("No data to report.");
+            }
+        });
     }
 }
