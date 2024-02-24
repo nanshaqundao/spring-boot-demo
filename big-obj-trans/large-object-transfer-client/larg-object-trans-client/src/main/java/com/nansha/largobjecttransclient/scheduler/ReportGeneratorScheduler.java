@@ -18,15 +18,16 @@ public class ReportGeneratorScheduler {
         this.reportGenerator = reportGenerator;
     }
 
-    @Scheduled(cron = "0 0 1 * * ?") // Runs at 1 AM every day
+    @Scheduled(cron = "*/10 * * * * ?") // Runs at 1 AM every day
     public void generateReport() {
+        System.out.println("Starting report generation");
         allMessages = new ArrayList<>();
         reportGenerator.fetchAndProcessPage(0, allMessages)
                 .subscribe(
-                        null,
+                        uploadResult -> System.out.println("Report generation completed: " + uploadResult),
                         error -> System.out.println("Error fetching message states: " + error),
                         () -> {
-                            allMessages.forEach(messageState -> System.out.println("Message: " + messageState));
+                            System.out.println("--------Report generation completed");
                         }
                 );
 

@@ -11,6 +11,7 @@ public class SftpClient {
 
   public UploadResult uploadFile(String content, String fileName) {
     // Upload the file to the SFTP server
+    System.out.println("Uploading file " + fileName + " to SFTP server " + name + "...");
     return new UploadResult(fileName, true);
   }
 }

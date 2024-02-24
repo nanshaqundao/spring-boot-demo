@@ -61,13 +61,19 @@ public class ReportGenerator {
         }
 
         return Mono.fromCallable(() -> {
-            logger.info("Finalizing report with {} entries.", messageStates.size());
-            String csvContent = CsvUtils.convertListToCsv(messageStates, MessageState.class);
-            // Assuming csvContent is transformed into a byte array within uploadFile method
-            UploadResult uploadResult = sftpClient.uploadFile(csvContent, "report.csv");
-            logger.info("Upload result: {}", uploadResult);
-            return uploadResult;
-        }).subscribeOn(Schedulers.boundedElastic()); // Ensures blocking I/O runs on a separate thread
+                    logger.info("Finalizing report with {} entries.", messageStates.size());
+                    logger.info("Converting to CSV the following message states: {}", messageStates);
+                    String csvContent = CsvUtils.convertListToCsv(messageStates, MessageState.class);
+                    // Assuming csvContent is transformed into a byte array within uploadFile method
+                    UploadResult uploadResult = sftpClient.uploadFile(csvContent, "report.csv");
+                    logger.info("Upload result: {}", uploadResult);
+                    return uploadResult;
+                }).subscribeOn(Schedulers.boundedElastic())         // Ensures blocking I/O runs on a separate thread
+                .onErrorResume(e -> {
+                    logger.error("Failed to upload report", e);
+                    return Mono.just(new UploadResult("filename", false)); // Indicate failure.
+                });
+
 
     }
 }
