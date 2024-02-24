@@ -9,6 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.nansha</groupId>
+	<artifactId>large-object-transfer</artifactId>
 1	<version>0.0.1-SNAPSHOT</version>
 	<name>large-object-transfer</name>
 	<description>large-object-transfer</description>
