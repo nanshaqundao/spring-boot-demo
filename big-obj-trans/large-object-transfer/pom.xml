@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.nansha</groupId>
 	<artifactId>large-object-transfer</artifactId>
-1	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<name>large-object-transfer</name>
 	<description>large-object-transfer</description>
 	<properties>
