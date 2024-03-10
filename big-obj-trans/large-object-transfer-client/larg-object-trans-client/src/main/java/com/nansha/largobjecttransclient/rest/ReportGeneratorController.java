@@ -2,7 +2,6 @@ package com.nansha.largobjecttransclient.rest;
 
 import com.nansha.largobjecttransclient.model.UploadResult;
 import com.nansha.largobjecttransclient.service.ReportGenerator;
-import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -25,7 +24,7 @@ public class ReportGeneratorController {
   @GetMapping("/generates")
   public Mono<ResponseEntity<UploadResult>> generateReports() {
     return reportGenerator
-        .fetchAndProcessPage(0, new ArrayList<>())
+        .generateCombinedReport()
         .map(ResponseEntity::ok)
         .onErrorResume(
             error -> {
