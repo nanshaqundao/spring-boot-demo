@@ -5,15 +5,13 @@ import com.nansha.largobjecttransclient.client.SftpClient;
 import com.nansha.largobjecttransclient.model.MessageState;
 import com.nansha.largobjecttransclient.model.UploadResult;
 import com.nansha.largobjecttransclient.util.CsvUtils;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class ReportGenerator {
@@ -77,6 +75,22 @@ public class ReportGenerator {
             e -> {
               logger.error("Failed to upload report", e);
               return Mono.just(new UploadResult("filename", false)); // Indicate failure.
+            });
+  }
+
+  // new ways
+  public Mono<UploadResult> generateCombinedReport() {
+    Mono<List<MessageState>> call1 = client.getMessageStatesFromServer1(0, 4, new ArrayList<>());
+    Mono<List<MessageState>> call2 = client.getMessageStatesFromServer2(0, 4, new ArrayList<>());
+
+    return Mono.zip(call1, call2)
+        .flatMap(
+            tuple -> {
+              List<MessageState> combinedList = new ArrayList<>();
+              combinedList.addAll(tuple.getT1());
+              combinedList.addAll(tuple.getT2());
+
+              return finalizeReport(combinedList);
             });
   }
 }
