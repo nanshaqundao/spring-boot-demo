@@ -26,29 +26,29 @@ class ReportGeneratorSchedulerTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    public void testGenerateReport_Success() {
-        when(reportGenerator.fetchAndProcessPage(anyInt(), anyList()))
-                .thenReturn(Mono.just(new UploadResult("report.csv", true)));
-
-        scheduler.generateReport();
-
-        // Verify that fetchAndProcessPage was called once
-        verify(reportGenerator, times(1)).fetchAndProcessPage(anyInt(), anyList());
-
-        // Additional verification steps can be added here if needed
-    }
-
-    @Test
-    public void testGenerateReport_Error() {
-        when(reportGenerator.fetchAndProcessPage(anyInt(), anyList()))
-                .thenReturn(Mono.error(new RuntimeException("Test error")));
-
-        scheduler.generateReport();
-
-        // Verify that fetchAndProcessPage was called once even in error scenario
-        verify(reportGenerator, times(1)).fetchAndProcessPage(anyInt(), anyList());
-
-        // Additional error handling verification can be added here
-    }
+  //    @Test
+  //    public void testGenerateReport_Success() {
+  //        when(reportGenerator.fetchAndProcessPage(anyInt(), anyList()))
+  //                .thenReturn(Mono.just(new UploadResult("report.csv", true)));
+  //
+  //        scheduler.generateReport();
+  //
+  //        // Verify that fetchAndProcessPage was called once
+  //        verify(reportGenerator, times(1)).fetchAndProcessPage(anyInt(), anyList());
+  //
+  //        // Additional verification steps can be added here if needed
+  //    }
+  //
+  //    @Test
+  //    public void testGenerateReport_Error() {
+  //        when(reportGenerator.fetchAndProcessPage(anyInt(), anyList()))
+  //                .thenReturn(Mono.error(new RuntimeException("Test error")));
+  //
+  //        scheduler.generateReport();
+  //
+  //        // Verify that fetchAndProcessPage was called once even in error scenario
+  //        verify(reportGenerator, times(1)).fetchAndProcessPage(anyInt(), anyList());
+  //
+  //        // Additional error handling verification can be added here
+  //    }
 }

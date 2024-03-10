@@ -25,7 +25,7 @@ public class ReportGeneratorController {
   @GetMapping("/generates")
   public Mono<ResponseEntity<UploadResult>> generateReports() {
     return reportGenerator
-        .fetchAndProcessPage(0, new ArrayList<>())
+        .generateCombinedReport()
         .map(ResponseEntity::ok)
         .onErrorResume(
             error -> {

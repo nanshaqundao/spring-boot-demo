@@ -26,32 +26,7 @@ public class ReportGenerator {
     this.sftpClient = sftpClient;
   }
 
-  public Mono<UploadResult> fetchAndProcessPage(
-      int pageNumber, List<MessageState> accumulatedStates) {
-    // Directly working with Mono<List<MessageState>>
-    return client
-        .getMessageStates(pageNumber, pageSize)
-        .flatMap(
-            messageStates -> {
-              List<MessageState> newAccumulatedStates = new ArrayList<>(accumulatedStates);
-              newAccumulatedStates.addAll(messageStates);
-              if (!messageStates.isEmpty()) {
-                // Process the fetched page
-                // Here, add your logic to handle messageStates, like saving them or further
-                // processing
-                if (messageStates.size() == pageSize) {
-                  // If full page, there might be more to fetch
-                  return fetchAndProcessPage(pageNumber + 1, newAccumulatedStates);
-                } else {
-                  // This was the last page
-                  return finalizeReport(newAccumulatedStates);
-                }
-              } else {
-                // No data found, possibly finalize or handle as needed
-                return finalizeReport(newAccumulatedStates);
-              }
-            });
-  }
+
 
   private Mono<UploadResult> finalizeReport(List<MessageState> messageStates) {
 
