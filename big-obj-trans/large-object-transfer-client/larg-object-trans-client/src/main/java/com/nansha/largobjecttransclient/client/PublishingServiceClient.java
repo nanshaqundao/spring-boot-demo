@@ -22,8 +22,6 @@ public class PublishingServiceClient {
     this.webClient2 = webClient2;
   }
 
-
-
   public Mono<List<MessageState>> fetchAndProcessPages(
       WebClient webClient, int pageNumber, int pageSize, List<MessageState> accumulatedStates) {
     return webClient
@@ -40,9 +38,9 @@ public class PublishingServiceClient {
             status -> status.is4xxClientError() || status.is5xxServerError(),
             clientResponse -> Mono.error(new TransferException("Error fetching message states")))
         .bodyToFlux(MessageState.class)
-            .retryWhen(
-                    Retry.fixedDelay(3, Duration.ofSeconds(3))
-                            .filter(throwable -> throwable instanceof TransferException))
+        .retryWhen(
+            Retry.fixedDelay(3, Duration.ofSeconds(3))
+                .filter(throwable -> throwable instanceof TransferException))
         .collectList()
         .flatMap(
             messageStates -> {

@@ -26,8 +26,6 @@ public class ReportGenerator {
     this.sftpClient = sftpClient;
   }
 
-
-
   private Mono<UploadResult> finalizeReport(List<MessageState> messageStates) {
 
     if (messageStates.isEmpty()) {

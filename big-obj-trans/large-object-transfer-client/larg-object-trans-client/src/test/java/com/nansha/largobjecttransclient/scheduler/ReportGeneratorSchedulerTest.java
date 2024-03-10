@@ -1,30 +1,23 @@
 package com.nansha.largobjecttransclient.scheduler;
 
-import com.nansha.largobjecttransclient.model.UploadResult;
+import static org.mockito.Mockito.*;
+
 import com.nansha.largobjecttransclient.service.ReportGenerator;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import reactor.core.publisher.Mono;
-
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.*;
 
 class ReportGeneratorSchedulerTest {
-    // Existing setup and tests
-    @Mock
-    private ReportGenerator reportGenerator;
+  // Existing setup and tests
+  @Mock private ReportGenerator reportGenerator;
 
-    @InjectMocks
-    private ReportGeneratorScheduler scheduler;
+  @InjectMocks private ReportGeneratorScheduler scheduler;
 
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+  @BeforeEach
+  public void setUp() {
+    MockitoAnnotations.openMocks(this);
+  }
 
   //    @Test
   //    public void testGenerateReport_Success() {

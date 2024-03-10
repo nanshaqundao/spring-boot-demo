@@ -15,8 +15,6 @@ public class WebClientProvider {
 
   @Bean
   public WebClient webClient2() {
-    return WebClient.builder()
-            .baseUrl("http://localhost:9081/message")
-            .build();
+    return WebClient.builder().baseUrl("http://localhost:9081/message").build();
   }
 }

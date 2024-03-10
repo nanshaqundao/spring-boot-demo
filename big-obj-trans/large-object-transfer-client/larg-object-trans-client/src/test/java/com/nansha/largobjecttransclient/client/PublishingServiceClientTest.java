@@ -37,19 +37,25 @@ class PublishingServiceClientTest {
   @Test
   void testFetchAndProcessPages() {
     // Prepare a mock response
-    mockWebServer1.enqueue(new MockResponse().setBody(
-                    "[{\"fieldA\":\"valueA1\",\"fieldB\":\"valueB1\",\"fieldC\":\"valueC1\",\"fieldD\":\"valueD1\"}," +
-                            "{\"fieldA\":\"valueA2\",\"fieldB\":\"valueB2\",\"fieldC\":\"valueC2\",\"fieldD\":\"valueD2\"}]")
+    mockWebServer1.enqueue(
+        new MockResponse()
+            .setBody(
+                "[{\"fieldA\":\"valueA1\",\"fieldB\":\"valueB1\",\"fieldC\":\"valueC1\",\"fieldD\":\"valueD1\"},"
+                    + "{\"fieldA\":\"valueA2\",\"fieldB\":\"valueB2\",\"fieldC\":\"valueC2\",\"fieldD\":\"valueD2\"}]")
             .addHeader("Content-Type", "application/json"));
 
     int pageSize = 10;
-    Mono<List<MessageState>> result = publishingServiceClient.fetchAndProcessPages(WebClient.create(mockWebServer1.url("/").toString()), 0, pageSize, new ArrayList<>());
+    Mono<List<MessageState>> result =
+        publishingServiceClient.fetchAndProcessPages(
+            WebClient.create(mockWebServer1.url("/").toString()), 0, pageSize, new ArrayList<>());
 
     StepVerifier.create(result)
-            .expectNextMatches(states -> states.size() == 2 &&
-                    states.get(0).getFieldA().equals("valueA1") &&
-                    states.get(1).getFieldA().equals("valueA2"))
-            .verifyComplete();
+        .expectNextMatches(
+            states ->
+                states.size() == 2
+                    && states.get(0).getFieldA().equals("valueA1")
+                    && states.get(1).getFieldA().equals("valueA2"))
+        .verifyComplete();
   }
 
   //  @Test
