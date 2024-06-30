@@ -9,6 +9,6 @@ public class QueuePublisher {
   public void publish(TargetObjectFromLargeObject largeJsonObject) {
     System.out.println(
         "Published to queue: " + largeJsonObject.name() + " - " + largeJsonObject.data());
-    throw new QueuePublishingException("Failed to publish to queue");
+//    throw new QueuePublishingException("Failed to publish to queue");
   }
 }
