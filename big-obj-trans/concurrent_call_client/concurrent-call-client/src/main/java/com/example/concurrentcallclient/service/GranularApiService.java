@@ -4,14 +4,13 @@ import com.example.concurrentcallclient.exception.*;
 import com.example.concurrentcallclient.model.GranularResponse;
 import com.example.concurrentcallclient.model.TargetObjectFromLargeObject;
 import com.example.concurrentcallclient.service.publishier.QueuePublisher;
-import com.example.concurrentcallclient.util.DataUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.handler.timeout.TimeoutException;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -19,68 +18,22 @@ import reactor.util.retry.Retry;
 
 import java.net.URI;
 import java.time.Duration;
-import java.util.Objects;
 import java.util.function.Function;
 
+import static com.example.concurrentcallclient.util.DataUtils.processJson;
+
 @Service
-public class ApiService {
-  private final Logger logger = org.slf4j.LoggerFactory.getLogger(ApiService.class);
+public class GranularApiService {
+  private final Logger logger = org.slf4j.LoggerFactory.getLogger(GranularApiService.class);
   private final WebClient webClient;
   private final Scheduler webClientScheduler;
   private final QueuePublisher queuePublisher;
 
-  public ApiService(
+  public GranularApiService(
       WebClient webClient, Scheduler webClientScheduler, QueuePublisher queuePublisher) {
     this.webClient = webClient;
     this.webClientScheduler = webClientScheduler;
     this.queuePublisher = queuePublisher;
-  }
-
-  public Mono<TargetObjectFromLargeObject> fetchDataFromApi(int pageNum, int pageSize) {
-    return webClient
-        .get()
-        .uri(
-            uriBuilder ->
-                uriBuilder
-                    .path("/message/getLargeJsonObject")
-                    .queryParam("pageNum", pageNum)
-                    .queryParam("pageSize", pageSize)
-                    .build())
-        .retrieve()
-        .onStatus(
-            status -> status.is4xxClientError() || status.is5xxServerError(),
-            response ->
-                response
-                    .bodyToMono(String.class)
-                    .flatMap(
-                        body ->
-                            Mono.error(
-                                new RuntimeException(
-                                    "Error: " + response.statusCode() + ", Body: " + body))))
-        .bodyToMono(String.class)
-        .doOnNext(response -> logger.info("Received response: {}", response))
-        .timeout(Duration.ofSeconds(1))
-        .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(1)))
-        .map(DataUtils::processJson)
-        .doOnNext(obj -> logger.info("Processed object: {}", obj))
-        .filter(Objects::nonNull)
-        .flatMap(this::publishToQueue)
-        .doOnSuccess(result -> logger.info("Completed fetchDataFromApi: {}", result))
-        .doOnError(
-            error -> {
-              if (error instanceof WebClientResponseException ex) {
-                logger.error("Error response code: {}", ex.getStatusCode(), ex);
-                logger.error("Error response body: {}", ex.getResponseBodyAsString(), ex);
-              } else {
-                logger.error("Error in fetchDataFromApi: {}", error.getMessage(), error);
-              }
-            })
-        .onErrorResume(
-            error -> {
-              logger.error("Error resumed in fetchDataFromApi: {}", error.getMessage(), error);
-              return Mono.empty();
-            })
-        .subscribeOn(webClientScheduler);
   }
 
   public Mono<GranularResponse> fetchDataFromApiGranular(int pageNum, int pageSize) {
@@ -124,7 +77,7 @@ public class ApiService {
 
   private Mono<GranularResponse> processAndPublish(String jsonString) {
     try {
-      TargetObjectFromLargeObject processedObject = DataUtils.processJson(jsonString);
+      TargetObjectFromLargeObject processedObject = processJson(jsonString);
       return publishToQueue(processedObject).map(this::createSuccessResponse);
     } catch (DataProcessingException e) {
       return Mono.error(e);

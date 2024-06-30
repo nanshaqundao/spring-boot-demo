@@ -7,10 +7,8 @@ import com.example.concurrentcallclient.util.DataUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import okhttp3.mockwebserver.RecordedRequest;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -21,6 +19,7 @@ import reactor.test.StepVerifier;
 import java.io.IOException;
 import java.util.Base64;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -34,23 +33,32 @@ class ApiServiceTest {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
 
-  @BeforeAll
-  static void setUp() throws IOException {
-    mockWebServer = new MockWebServer();
-    mockWebServer.start();
-  }
-
-  @AfterAll
-  static void tearDown() throws IOException {
-    mockWebServer.shutdown();
-  }
+//  @BeforeAll
+//  static void setUp() throws IOException {
+//    mockWebServer = new MockWebServer();
+//    mockWebServer.start();
+//  }
+//
+//  @AfterAll
+//  static void tearDown() throws IOException {
+//    mockWebServer.shutdown();
+//  }
 
   @BeforeEach
-  void initialize() {
+  void initialize() throws IOException {
+    mockWebServer = new MockWebServer();
+    mockWebServer.start();
     String baseUrl = String.format("http://localhost:%s", mockWebServer.getPort());
     WebClient webClient = WebClient.create(baseUrl);
-    apiService = new ApiService(webClient, Schedulers.immediate(), queuePublisher, objectMapper);
+    apiService = new ApiService(webClient, Schedulers.immediate(), queuePublisher);
+
   }
+
+  @AfterEach
+    void reset() throws IOException {
+        mockWebServer.shutdown();
+    }
+
 
   @Test
   void fetchDataFromApiReturnsTargetObjectWhenApiCallIsSuccessful() throws Exception {
@@ -59,20 +67,21 @@ class ApiServiceTest {
     String jsonResponse = objectMapper.writeValueAsString(largeJsonObject);
 
     mockWebServer.enqueue(
-        new MockResponse().setBody(jsonResponse).addHeader("Content-Type", "application/json"));
+            new MockResponse().setBody(jsonResponse).addHeader("Content-Type", "application/json"));
+
 
     TargetObjectFromLargeObject expectedTargetObject =
-        DataUtils.processLargeJsonObject(largeJsonObject);
+            DataUtils.processLargeJsonObject(largeJsonObject);
 
     // Act & Assert
     StepVerifier.create(apiService.fetchDataFromApi(0, 10))
-        .expectNextMatches(
-            obj ->
-                obj.name().equals("Test Name")
-                    && obj.data().equals("Test Data")
-                    && obj.processedData()
-                        .equals(Base64.getEncoder().encodeToString("Test Data".getBytes())))
-        .verifyComplete();
+            .consumeNextWith(result -> {
+              System.out.println("Received result: " + result);
+              assertThat(result.name()).isEqualTo("Test Name");
+              assertThat(result.data()).isEqualTo("Test Data");
+              assertThat(result.processedData()).isEqualTo(Base64.getEncoder().encodeToString("Test Data".getBytes()));
+            })
+            .verifyComplete();
 
     verify(queuePublisher).publish(any(TargetObjectFromLargeObject.class));
   }

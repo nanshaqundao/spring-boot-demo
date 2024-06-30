@@ -52,7 +52,7 @@ public class NewApiServiceTest {
 
     WebClient webClient = WebClient.builder().baseUrl(mockWebServer.url("/").toString()).build();
 
-    apiService = new ApiService(webClient, webClientScheduler, queuePublisher, objectMapper);
+    apiService = new ApiService(webClient, webClientScheduler, queuePublisher);
   }
 
   @Test
