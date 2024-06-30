@@ -1,5 +1,6 @@
 package com.example.concurrentcallclient.util;
 
+import com.example.concurrentcallclient.exception.DataProcessingException;
 import com.example.concurrentcallclient.model.LargeJsonObject;
 import com.example.concurrentcallclient.model.TargetObjectFromLargeObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -17,11 +18,11 @@ public class DataUtils {
 
   public static TargetObjectFromLargeObject processJson(String json) {
     ObjectMapper objectMapper = new ObjectMapper();
-    LargeJsonObject largeObjectData = null;
+    LargeJsonObject largeObjectData;
     try {
       largeObjectData = objectMapper.readValue(json, LargeJsonObject.class);
     } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
+      throw new DataProcessingException(e.getMessage());
     }
     return DataUtils.processLargeJsonObject(largeObjectData);
   }
