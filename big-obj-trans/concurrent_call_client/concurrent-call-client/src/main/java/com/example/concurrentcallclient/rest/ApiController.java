@@ -3,6 +3,7 @@ package com.example.concurrentcallclient.rest;
 import com.example.concurrentcallclient.model.GranularResponse;
 import com.example.concurrentcallclient.service.ApiService;
 import com.example.concurrentcallclient.service.GranularApiService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +34,13 @@ public class ApiController {
     public Mono<ResponseEntity<List<GranularResponse>>> fetchDataGranular() {
         int pageSize = 50;
         int totalPages = 15;
-        return granularApiService.fetchDataGranular(totalPages, pageSize);
+        return granularApiService.fetchDataGranular(totalPages, pageSize)
+                .map(responses -> createResponseEntity(responses, totalPages));
+    }
+
+    private ResponseEntity<List<GranularResponse>> createResponseEntity(List<GranularResponse> responses, int expectedSize) {
+        boolean allSuccessful = responses.size() == expectedSize && responses.stream().allMatch(GranularResponse::result);
+        HttpStatus status = allSuccessful ? HttpStatus.OK : HttpStatus.PARTIAL_CONTENT;
+        return ResponseEntity.status(status).body(responses);
     }
 }

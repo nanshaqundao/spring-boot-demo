@@ -15,6 +15,8 @@ import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
@@ -38,42 +40,74 @@ public class ApiControllerTest {
   @Test
   @DisplayName("fetchData delegates to ApiService and returns its result")
   public void fetchDataDelegatesToApiService() {
-    // Arrange
     when(apiService.fetchData(anyInt(), anyInt())).thenReturn(Mono.just("Overall Success"));
 
-    // Act
     Mono<String> result = apiController.fetchData();
 
-    // Assert
     StepVerifier.create(result)
             .expectNext("Overall Success")
             .verifyComplete();
   }
 
   @Test
-  @DisplayName("fetchDataGranular delegates to GranularApiService and returns its result")
-  public void fetchDataGranularDelegatesToGranularApiService() {
-    // Arrange
-    List<GranularResponse> mockResponses = List.of(
-            new GranularResponse("Test1", "Data1", true, ""),
-            new GranularResponse("Test2", "Data2", false, "Error")
-    );
-    ResponseEntity<List<GranularResponse>> mockResponseEntity =
-            ResponseEntity.status(HttpStatus.PARTIAL_CONTENT).body(mockResponses);
+  @DisplayName("fetchDataGranular returns OK status when all responses are successful and match expected size")
+  public void fetchDataGranularReturnsOkStatusWhenAllSuccessfulAndMatchSize() {
+    int expectedSize = 15;
+    List<GranularResponse> mockResponses = IntStream.range(0, expectedSize)
+            .mapToObj(i -> new GranularResponse("Test" + i, "Data" + i, true, ""))
+            .collect(Collectors.toList());
 
     when(granularApiService.fetchDataGranular(anyInt(), anyInt()))
-            .thenReturn(Mono.just(mockResponseEntity));
+            .thenReturn(Mono.just(mockResponses));
 
-    // Act
     Mono<ResponseEntity<List<GranularResponse>>> result = apiController.fetchDataGranular();
 
-    // Assert
+    StepVerifier.create(result)
+            .expectNextMatches(response ->
+                    response.getStatusCode() == HttpStatus.OK &&
+                            Objects.requireNonNull(response.getBody()).size() == expectedSize &&
+                            response.getBody().stream().allMatch(GranularResponse::result)
+            )
+            .verifyComplete();
+  }
+
+  @Test
+  @DisplayName("fetchDataGranular returns PARTIAL_CONTENT status when responses don't match expected size")
+  public void fetchDataGranularReturnsPartialContentStatusWhenSizeMismatch() {
+    List<GranularResponse> mockResponses = IntStream.range(0, 10)  // Only 10 responses instead of expected 15
+            .mapToObj(i -> new GranularResponse("Test" + i, "Data" + i, true, ""))
+            .collect(Collectors.toList());
+
+    when(granularApiService.fetchDataGranular(anyInt(), anyInt()))
+            .thenReturn(Mono.just(mockResponses));
+
+    Mono<ResponseEntity<List<GranularResponse>>> result = apiController.fetchDataGranular();
+
     StepVerifier.create(result)
             .expectNextMatches(response ->
                     response.getStatusCode() == HttpStatus.PARTIAL_CONTENT &&
-                            Objects.requireNonNull(response.getBody()).size() == 2 &&
-                            response.getBody().get(0).name().equals("Test1") &&
-                            response.getBody().get(1).name().equals("Test2")
+                            Objects.requireNonNull(response.getBody()).size() == 10
+            )
+            .verifyComplete();
+  }
+
+  @Test
+  @DisplayName("fetchDataGranular returns PARTIAL_CONTENT status when some responses are not successful")
+  public void fetchDataGranularReturnsPartialContentStatusWhenSomeResponsesFail() {
+    List<GranularResponse> mockResponses = IntStream.range(0, 15)
+            .mapToObj(i -> new GranularResponse("Test" + i, "Data" + i, i % 2 == 0, i % 2 != 0 ? "Error" : ""))
+            .collect(Collectors.toList());
+
+    when(granularApiService.fetchDataGranular(anyInt(), anyInt()))
+            .thenReturn(Mono.just(mockResponses));
+
+    Mono<ResponseEntity<List<GranularResponse>>> result = apiController.fetchDataGranular();
+
+    StepVerifier.create(result)
+            .expectNextMatches(response ->
+                    response.getStatusCode() == HttpStatus.PARTIAL_CONTENT &&
+                            Objects.requireNonNull(response.getBody()).size() == 15 &&
+                            response.getBody().stream().anyMatch(r -> !r.result())
             )
             .verifyComplete();
   }

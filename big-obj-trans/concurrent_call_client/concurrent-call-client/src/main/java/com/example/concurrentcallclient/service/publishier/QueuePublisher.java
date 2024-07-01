@@ -1,6 +1,5 @@
 package com.example.concurrentcallclient.service.publishier;
 
-import com.example.concurrentcallclient.exception.QueuePublishingException;
 import com.example.concurrentcallclient.model.TargetObjectFromLargeObject;
 import org.springframework.stereotype.Component;
 

@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
@@ -158,9 +159,13 @@ public class DataSourceClient {
   private Mono<TargetObjectFromLargeObject> publishToQueue(
       TargetObjectFromLargeObject largeJsonObject) {
     return Mono.fromCallable(
-        () -> {
-          queuePublisher.publish(largeJsonObject);
-          return largeJsonObject;
-        });
+            () -> {
+              queuePublisher.publish(largeJsonObject);
+              return largeJsonObject;
+            })
+        .subscribeOn(Schedulers.boundedElastic())
+        .doOnSuccess(result -> logger.debug("Successfully published to queue: {}", result.name()))
+        .doOnError(error -> logger.error("Error publishing to queue: {}", error.getMessage()))
+        .onErrorMap(error -> new QueuePublishingException("Failed to publish to queue", error));
   }
 }
