@@ -1,90 +1,138 @@
 package com.example.concurrentcallclient.service;
 
+import com.example.concurrentcallclient.client.DataSourceClient;
 import com.example.concurrentcallclient.model.TargetObjectFromLargeObject;
-import com.example.concurrentcallclient.service.publishier.QueuePublisher;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
-import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class NewApiServiceTest {
 
+  @Mock
+  private DataSourceClient dataSourceClient;
+
   private ApiService apiService;
-  private static MockWebServer mockWebServer;
-  private Scheduler webClientScheduler;
-  private QueuePublisher queuePublisher;
-  private ObjectMapper objectMapper;
-
-  @BeforeAll
-  public static void setUp() throws IOException {
-    mockWebServer = new MockWebServer();
-    mockWebServer.start();
-  }
-
-  @AfterAll
-  public static void tearDown() throws IOException {
-    mockWebServer.shutdown();
-  }
 
   @BeforeEach
   public void initialize() {
-    webClientScheduler = Schedulers.boundedElastic();
-    queuePublisher = mock(QueuePublisher.class);
-    objectMapper = new ObjectMapper();
-
-    WebClient webClient = WebClient.builder().baseUrl(mockWebServer.url("/").toString()).build();
-
-    apiService = new ApiService(webClient, webClientScheduler, queuePublisher);
+    apiService = new ApiService(dataSourceClient);
   }
 
   @Test
-  @DisplayName("fetchDataFromApi processes and publishes data successfully")
-  public void fetchDataFromApiProcessesAndPublishesDataSuccessfully() {
-    // Mock response
-    String mockResponse = "{\"name\":\"name\",\"data\":\"data\"}";
-    mockWebServer.enqueue(
-        new MockResponse().setBody(mockResponse).addHeader("Content-Type", "application/json"));
+  @DisplayName("fetchData returns 'Overall Success' when all calls succeed")
+  public void fetchDataReturnsOverallSuccessWhenAllCallsSucceed() {
+    // Arrange
+    when(dataSourceClient.fetchData(anyInt(), anyInt()))
+            .thenReturn(Mono.just(new TargetObjectFromLargeObject("name", "data", "processedData")));
 
-    // Mock the QueuePublisher
-    Mockito.doNothing().when(queuePublisher).publish(any(TargetObjectFromLargeObject.class));
-
-    // Test the method
-    Mono<TargetObjectFromLargeObject> result = apiService.fetchDataFromApi(1, 10);
-
-    StepVerifier.create(result)
-        .expectNextMatches(
-            targetObject ->
-                "name".equals(targetObject.name()) && "data".equals(targetObject.data()))
-        .verifyComplete();
+    // Act & Assert
+    StepVerifier.create(apiService.fetchData(15, 50))
+            .expectNext("Overall Success")
+            .verifyComplete();
   }
 
   @Test
-  @DisplayName("fetchDataFromApi handles API call failures")
-  public void fetchDataFromApiHandlesApiCallFailures() {
-    // Mock error response
-    mockWebServer.enqueue(new MockResponse().setResponseCode(500).setBody("Internal Server Error"));
+  @DisplayName("fetchData returns 'Partial Success' when some calls fail")
+  public void fetchDataReturnsPartialSuccessWhenSomeCallsFail() {
+    // Arrange
+    when(dataSourceClient.fetchData(anyInt(), anyInt()))
+            .thenReturn(Mono.just(new TargetObjectFromLargeObject("name", "data", "processedData")))
+            .thenReturn(Mono.empty())
+            .thenReturn(Mono.just(new TargetObjectFromLargeObject("name", "data", "processedData")));
 
-    // Test the method
-    Mono<TargetObjectFromLargeObject> result = apiService.fetchDataFromApi(1, 10);
+    // Act & Assert
+    StepVerifier.create(apiService.fetchData(3, 50))
+            .expectNext("Partial Success")
+            .verifyComplete();
+  }
 
-    StepVerifier.create(result).expectComplete().verify();
+  @Test
+  @DisplayName("fetchData handles API call failures gracefully")
+  public void fetchDataHandlesApiCallFailuresGracefully() {
+    // Arrange
+    when(dataSourceClient.fetchData(anyInt(), anyInt()))
+            .thenReturn(Mono.error(new RuntimeException("API call failed")));
+
+    // Act & Assert
+    StepVerifier.create(apiService.fetchData(1, 50))
+            .expectNext("Partial Success")
+            .verifyComplete();
+  }
+
+  @Test
+  @DisplayName("fetchData handles mixed success, failures, and errors")
+  public void fetchDataHandlesMixedSuccessFailuresAndErrors() {
+    // Arrange
+    when(dataSourceClient.fetchData(anyInt(), anyInt()))
+            .thenReturn(Mono.just(new TargetObjectFromLargeObject("name1", "data1", "processedData1")))
+            .thenReturn(Mono.empty())
+            .thenReturn(Mono.error(new RuntimeException("API call failed")))
+            .thenReturn(Mono.just(new TargetObjectFromLargeObject("name2", "data2", "processedData2")));
+
+    // Act & Assert
+    StepVerifier.create(apiService.fetchData(4, 50))
+            .expectNext("Partial Success")
+            .verifyComplete();
+  }
+
+  @Test
+  @DisplayName("determineOverallResult returns 'Overall Success' when all successful")
+  public void determineOverallResultReturnsOverallSuccessWhenAllSuccessful() {
+    // Arrange
+    List<TargetObjectFromLargeObject> results = Arrays.asList(
+            new TargetObjectFromLargeObject("Test1", "Data1", "ProcessedData1"),
+            new TargetObjectFromLargeObject("Test2", "Data2", "ProcessedData2")
+    );
+
+    // Act
+    String result = apiService.determineOverallResult(results, 2);
+
+    // Assert
+    assertEquals("Overall Success", result);
+  }
+
+  @Test
+  @DisplayName("determineOverallResult returns 'Partial Success' when size mismatch")
+  public void determineOverallResultReturnsPartialSuccessWhenSizeMismatch() {
+    // Arrange
+    List<TargetObjectFromLargeObject> results = Collections.singletonList(
+            new TargetObjectFromLargeObject("Test", "Data", "ProcessedData")
+    );
+
+    // Act
+    String result = apiService.determineOverallResult(results, 2);
+
+    // Assert
+    assertEquals("Partial Success", result);
+  }
+
+  @Test
+  @DisplayName("determineOverallResult returns 'Partial Success' when null present")
+  public void determineOverallResultReturnsPartialSuccessWhenNullPresent() {
+    // Arrange
+    List<TargetObjectFromLargeObject> results = Arrays.asList(
+            new TargetObjectFromLargeObject("Test", "Data", "ProcessedData"),
+            null
+    );
+
+    // Act
+    String result = apiService.determineOverallResult(results, 2);
+
+    // Assert
+    assertEquals("Partial Success", result);
   }
 }
