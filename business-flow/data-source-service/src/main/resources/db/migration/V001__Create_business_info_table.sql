@@ -3,7 +3,7 @@ DO $$
 BEGIN
     IF NOT EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'business_info') THEN
 CREATE TABLE public.business_info (
-                                      id SERIAL PRIMARY KEY,
+                                      id BIGSERIAL PRIMARY KEY,  -- Change SERIAL to BIGSERIAL
                                       name VARCHAR(255) NOT NULL,
                                       description TEXT
 );
