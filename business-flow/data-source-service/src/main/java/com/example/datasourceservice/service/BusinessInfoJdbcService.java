@@ -5,6 +5,8 @@ import java.util.List;
 import com.example.datasourceservice.entity.BusinessInfo;
 import com.example.datasourceservice.repository.BusinessInfoJdbcRepository;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 public class BusinessInfoJdbcService {
@@ -17,5 +19,10 @@ public class BusinessInfoJdbcService {
 
   public List<BusinessInfo> findAllByBusinessName(String name) {
     return repository.findByName(name);
+  }
+
+  public Flux<BusinessInfo> findAllByNameReactive(String name) {
+    return Flux.defer(() -> Flux.fromIterable(repository.findByName(name)))
+            .subscribeOn(Schedulers.boundedElastic());  // Run on a non-blocking thread pool
   }
 }
