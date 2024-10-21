@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -31,10 +30,5 @@ public class BusinessInfoMvcController {
           HttpStatus.NOT_FOUND, "No businesses found with name: " + name);
     }
     return ResponseEntity.ok(businessInfos);
-  }
-
-  @GetMapping("/reactive/name/{name}")
-  public Flux<BusinessInfo> getBusinessInfoByNameReactive(@PathVariable String name) {
-    return businessInfoService.findAllByNameReactive(name);
   }
 }
