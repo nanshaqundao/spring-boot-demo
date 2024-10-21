@@ -1,4 +1,4 @@
-package com.example.datasourceservice.repository;
+package com.example.datasourceservice.repository.jpa;
 
 import com.example.datasourceservice.entity.BusinessInfo;
 import org.springframework.data.jpa.repository.JpaRepository;

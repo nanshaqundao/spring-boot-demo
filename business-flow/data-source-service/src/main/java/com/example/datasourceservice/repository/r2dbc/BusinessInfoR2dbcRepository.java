@@ -1,4 +1,4 @@
-package com.example.datasourceservice.repository;
+package com.example.datasourceservice.repository.r2dbc;
 
 import com.example.datasourceservice.entity.BusinessInfo;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;

@@ -1,7 +1,7 @@
 package com.example.datasourceservice.service;
 
 import com.example.datasourceservice.entity.BusinessInfo;
-import com.example.datasourceservice.repository.BusinessInfoR2dbcRepository;
+import com.example.datasourceservice.repository.r2dbc.BusinessInfoR2dbcRepository;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;

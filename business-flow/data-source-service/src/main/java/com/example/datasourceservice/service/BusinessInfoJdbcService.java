@@ -3,7 +3,7 @@ package com.example.datasourceservice.service;
 import java.util.List;
 
 import com.example.datasourceservice.entity.BusinessInfo;
-import com.example.datasourceservice.repository.BusinessInfoJdbcRepository;
+import com.example.datasourceservice.repository.jpa.BusinessInfoJdbcRepository;
 import org.springframework.stereotype.Service;
 
 @Service
