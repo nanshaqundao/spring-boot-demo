@@ -4,10 +4,7 @@ import com.example.datasourceservice.entity.BusinessInfo;
 import com.example.datasourceservice.service.BusinessInfoJdbcService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 
@@ -36,5 +33,11 @@ public class BusinessInfoMvcController {
   @GetMapping("/reactive/name/{name}")
   public Flux<BusinessInfo> getBusinessInfoByNameReactive(@PathVariable String name) {
     return businessInfoService.findAllByNameReactive(name);
+  }
+
+  @GetMapping("/reactive-with-buffer/name/{name}")
+  public Flux<BusinessInfo> getBusinessInfoByNameReactiveWithBuffer(
+      @PathVariable String name, @RequestParam(defaultValue = "5") int bufferSize) {
+    return businessInfoService.findAllByNameReactiveWithBuffer(name, bufferSize);
   }
 }
