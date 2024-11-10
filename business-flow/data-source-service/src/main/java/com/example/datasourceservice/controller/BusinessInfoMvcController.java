@@ -9,7 +9,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -23,6 +26,7 @@ import java.util.List;
     produces = {"application/x-protobuf", "application/json"})
 @Tag(name = "Business Info Controller", description = "Business information operations")
 public class BusinessInfoMvcController {
+  private static final Logger logger = LoggerFactory.getLogger(BusinessInfoMvcController.class);
 
   private final BusinessInfoJdbcService businessInfoService;
 
@@ -80,11 +84,41 @@ public class BusinessInfoMvcController {
   @GetMapping(value = "/test-protobuf")
   public ResponseEntity<BusinessPayload> getBusinessPayload() {
     var payload =
-        BusinessPayload.newBuilder()
-            .setName("John Doe")
-            .setOrder("123")
-            .setContent("abc")
-            .build();
+        BusinessPayload.newBuilder().setName("John Doe").setOrder("123").setContent("abc").build();
     return ResponseEntity.ok(payload);
+  }
+
+  // Streaming endpoint
+  @GetMapping(value = "/test-protobuf-flux", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  @ResponseBody
+  @Operation(
+      summary = "Get business payload flux as byte stream",
+      description = "Returns business payload flux as Server-Sent Events",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Stream of serialized protobuf messages",
+            content =
+                @Content(
+                    mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
+                    schema =
+                        @Schema(
+                            type = "string",
+                            format = "binary",
+                            description = "Stream of serialized BusinessPayload messages")))
+      })
+  public Flux<byte[]> getBusinessPayloadFlux() {
+    return Flux.range(1, 5)
+        .map(
+            i -> {
+              BusinessPayload payload =
+                  BusinessPayload.newBuilder()
+                      .setName("John Doe " + i)
+                      .setOrder(String.valueOf(i * 100))
+                      .setContent("content " + i) // In real case, this would be your 10K content
+                      .build();
+              logger.debug("Generated payload {} with size {}", i, payload.getSerializedSize());
+              return payload.toByteArray();
+            });
   }
 }
