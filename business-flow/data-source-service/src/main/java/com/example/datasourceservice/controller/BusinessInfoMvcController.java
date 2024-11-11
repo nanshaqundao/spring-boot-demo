@@ -119,11 +119,17 @@ public class BusinessInfoMvcController {
         .delayElements(Duration.ofNanos(500))
         .map(
             payload -> {
+                payload.getContent();
+                String contentPreview =
+                        payload.getContent().length() >= 10
+                            ? payload.getContent().substring(0, 10)
+                            : payload.getContent(); // use full content if less than 10 chars
+
               logger.info(
-                  "Converting payload {} , order number {}, first 10 chars of payload {},with size {}",
+                  "Converting payload name {}, order number {}, first 10 chars of payload {}, with size {}",
                   payload.getName(),
                   payload.getOrder(),
-                  payload.getContent().substring(0, 10),
+                  contentPreview,
                   payload.getSerializedSize());
               return payload.toByteArray();
             })
