@@ -150,7 +150,7 @@ public class BusinessInfoMvcController {
                             description = "Stream of serialized BusinessPayload messages")))
       })
   public Flux<byte[]> getBusinessPayloadFlux() {
-    return Flux.range(1, 100000)
+    return Flux.range(1, 100)
         // Add small delay to prevent overwhelming the client
         .delayElements(Duration.ofNanos(500))
         // Add basic backpressure handling

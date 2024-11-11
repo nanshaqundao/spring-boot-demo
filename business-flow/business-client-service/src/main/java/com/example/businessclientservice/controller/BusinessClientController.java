@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
@@ -96,17 +95,18 @@ public class BusinessClientController {
   public Mono<String> getBusinessPayloadFluxSimpleLarge() {
     final AtomicInteger counter = new AtomicInteger(0);
     final long startTime = System.currentTimeMillis();
+    logger.info("Received large payload requestI");
 
     return businessClientService
         .getBusinessPayloadStreamLarge()
         .doOnNext(
             proto -> {
               int current = counter.incrementAndGet();
-              if (current % 100 == 0) { // Log progress every 100 messages
+
                 long currentTime = System.currentTimeMillis();
                 long elapsed = currentTime - startTime;
                 logger.info("Progress: {} messages processed in {} ms", current, elapsed);
-              }
+
 
               try {
                 BusinessPayloadDto dto = BusinessPayloadDto.fromProto(proto);
@@ -134,6 +134,6 @@ public class BusinessClientController {
                     "Error processing stream after {} messages: {}",
                     counter.get(),
                     error.getMessage()))
-        .then(Mono.just(String.format("Processing started for %d messages", 1000)));
+        .then(Mono.just(String.format("Processing started for %d messages", 100000)));
   }
 }

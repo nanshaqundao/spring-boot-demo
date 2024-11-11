@@ -11,6 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +31,8 @@ public class BusinessClientService {
 
   public Flux<BusinessPayload> getBusinessPayloadStreamLarge() {
     ChunkBuffer buffer = new ChunkBuffer();
+    final AtomicInteger counter = new AtomicInteger(0);
+    final long startTime = System.currentTimeMillis();
 
     return webClient
         .get()
@@ -51,7 +54,9 @@ public class BusinessClientService {
   private static class ChunkBuffer {
     private final List<byte[]> chunks = new ArrayList<>();
     private final StringBuilder prefixBuffer = new StringBuilder();
+    private final List<byte[]> suffixBuffer = new ArrayList<>();
     private boolean foundPrefix = false;
+    private boolean foundSuffix = false;
     private boolean isComplete = false;
 
     public ChunkBuffer addChunk(byte[] chunk) {
@@ -69,8 +74,25 @@ public class BusinessClientService {
       }
 
       // If we've found the prefix, check for message completion
-      if (chunk.length == 2 && chunk[0] == '\n' && chunk[1] == '\n') {
-        isComplete = true;
+      if (!foundSuffix) {
+        if (chunk.length == 2 && chunk[0] == '\n' && chunk[1] == '\n') {
+          isComplete = true;
+          foundSuffix = true;
+          return this;
+        }
+        if (chunk.length == 1 && chunk[0] == '\n') {
+          suffixBuffer.add(chunk);
+          if (suffixBuffer.size() == 2
+              && suffixBuffer.get(0).length == 1
+              && suffixBuffer.get(1).length == 1
+              && suffixBuffer.get(0)[0] == '\n'
+              && suffixBuffer.get(1)[0] == '\n') {
+            isComplete = true;
+            foundSuffix = true;
+            return this;
+          }
+          return this;
+        }
         return this;
       }
 
