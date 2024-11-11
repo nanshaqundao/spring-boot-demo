@@ -4,6 +4,7 @@ import com.example.datasourceservice.entity.BusinessInfo;
 
 import com.example.datasourceservice.protobuf.BusinessPayload;
 import com.example.datasourceservice.service.BusinessInfoJdbcService;
+import com.example.datasourceservice.service.BusinessOrderPayloadJdbcService;
 import com.example.datasourceservice.util.PayloadContentGenerator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,9 +32,13 @@ public class BusinessInfoMvcController {
   private static final Logger logger = LoggerFactory.getLogger(BusinessInfoMvcController.class);
 
   private final BusinessInfoJdbcService businessInfoService;
+  private final BusinessOrderPayloadJdbcService businessOrderPayloadService;
 
-  public BusinessInfoMvcController(BusinessInfoJdbcService businessInfoService) {
+  public BusinessInfoMvcController(
+      BusinessInfoJdbcService businessInfoService,
+      BusinessOrderPayloadJdbcService businessOrderPayloadService) {
     this.businessInfoService = businessInfoService;
+    this.businessOrderPayloadService = businessOrderPayloadService;
   }
 
   @GetMapping("/name/{name}")
@@ -109,6 +114,46 @@ public class BusinessInfoMvcController {
                             description = "Stream of serialized BusinessPayload messages")))
       })
   public Flux<byte[]> getBusinessPayloadFlux() {
+    return businessOrderPayloadService
+        .findAllByNameReactiveAsProto("TimeMachine")
+        .delayElements(Duration.ofNanos(500))
+        .map(
+            payload -> {
+              logger.info(
+                  "Converting payload {} with size {}",
+                  payload.getName(),
+                  payload.getSerializedSize());
+              return payload.toByteArray();
+            })
+        .doOnSubscribe(s -> logger.info("Client subscribed to flux"))
+        .doOnComplete(() -> logger.info("Completed streaming messages"))
+        .doOnCancel(() -> logger.info("Client cancelled subscription"))
+        .onErrorResume(
+            error -> {
+              logger.error("Error in streaming payloads: {}", error.getMessage());
+              return Flux.empty();
+            });
+  }
+
+  @GetMapping(value = "/test-protobuf-flux-old", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  @ResponseBody
+  @Operation(
+      summary = "Get business payload flux as byte stream",
+      description = "Returns business payload flux as Server-Sent Events",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Stream of serialized protobuf messages",
+            content =
+                @Content(
+                    mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
+                    schema =
+                        @Schema(
+                            type = "string",
+                            format = "binary",
+                            description = "Stream of serialized BusinessPayload messages")))
+      })
+  public Flux<byte[]> getBusinessPayloadFluxOld() {
     return Flux.range(1, 10000)
         // Add small delay to prevent overwhelming the client
         .delayElements(Duration.ofNanos(500))
