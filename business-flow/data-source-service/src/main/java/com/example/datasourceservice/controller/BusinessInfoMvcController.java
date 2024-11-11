@@ -120,8 +120,10 @@ public class BusinessInfoMvcController {
         .map(
             payload -> {
               logger.info(
-                  "Converting payload {} with size {}",
+                  "Converting payload {} , order number {}, first 10 chars of payload {},with size {}",
                   payload.getName(),
+                  payload.getOrder(),
+                  payload.getContent().substring(0, 10),
                   payload.getSerializedSize());
               return payload.toByteArray();
             })
