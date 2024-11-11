@@ -67,6 +67,7 @@ public class BusinessClientService {
 
         if (prefixBuffer.toString().contains("data:")) {
           foundPrefix = true;
+          logger.debug("Found prefix with buffer content: {}", prefixBuffer);
           // Don't add this chunk - it contains SSE formatting
           return this;
         }
@@ -75,13 +76,17 @@ public class BusinessClientService {
 
       // If we've found the prefix, check for message completion
       if (!foundSuffix) {
+        // Case 1: Complete suffix in one chunk
         if (chunk.length == 2 && chunk[0] == '\n' && chunk[1] == '\n') {
+          logger.debug("Found complete suffix in single chunk");
           isComplete = true;
           foundSuffix = true;
           return this;
         }
+        // Case 2: Suffix split across chunks
         if (chunk.length == 1 && chunk[0] == '\n') {
           suffixBuffer.add(chunk);
+          logger.debug("Added to suffix buffer, size now: {}", suffixBuffer.size());
           if (suffixBuffer.size() == 2
               && suffixBuffer.get(0).length == 1
               && suffixBuffer.get(1).length == 1
@@ -89,6 +94,7 @@ public class BusinessClientService {
               && suffixBuffer.get(1)[0] == '\n') {
             isComplete = true;
             foundSuffix = true;
+            logger.debug("Found complete suffix across chunks");
             return this;
           }
           return this;
@@ -118,7 +124,9 @@ public class BusinessClientService {
     public void reset() {
       chunks.clear();
       prefixBuffer.setLength(0);
+      suffixBuffer.clear();  // Add this
       foundPrefix = false;
+      foundSuffix = false;   // Add this
       isComplete = false;
     }
   }
