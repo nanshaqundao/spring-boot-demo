@@ -4,7 +4,9 @@ import com.example.datasourceservice.entity.BusinessInfo;
 
 import com.example.datasourceservice.protobuf.BusinessPayload;
 import com.example.datasourceservice.service.BusinessInfoJdbcService;
+import com.example.datasourceservice.util.PayloadContentGenerator;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,7 +19,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
+import java.time.Duration;
 import java.util.List;
 
 @RestController
@@ -88,7 +92,45 @@ public class BusinessInfoMvcController {
     return ResponseEntity.ok(payload);
   }
 
-  // Streaming endpoint
+  //  // Streaming endpoint
+  //  @GetMapping(value = "/test-protobuf-flux", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  //  @ResponseBody
+  //  @Operation(
+  //      summary = "Get business payload flux as byte stream",
+  //      description = "Returns business payload flux as Server-Sent Events",
+  //      responses = {
+  //        @ApiResponse(
+  //            responseCode = "200",
+  //            description = "Stream of serialized protobuf messages",
+  //            content =
+  //                @Content(
+  //                    mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
+  //                    schema =
+  //                        @Schema(
+  //                            type = "string",
+  //                            format = "binary",
+  //                            description = "Stream of serialized BusinessPayload messages")))
+  //      })
+  //  public Flux<byte[]> getBusinessPayloadFlux() {
+  //    return Flux.range(1, 10000)
+  //        .map(
+  //            i -> {
+  //              BusinessPayload payload =
+  //                  BusinessPayload.newBuilder()
+  //                      .setName("John Doe " + i)
+  //                      .setOrder(String.valueOf(i * 100))
+  //                      .setContent(
+  //                          PayloadContentGenerator
+  //                              .generateRandomContent()) // In real case, this would be your 10K
+  //                      // content
+  //                      .build();
+  //              logger.info("Generated payload {} with size {}", i, payload.getSerializedSize());
+  //              return payload.toByteArray();
+  //            })
+  //        .doOnComplete(() -> logger.info("Completed emitting all messages"))
+  //        .doOnError(error -> logger.error("Error in emitting payloads: {}", error.getMessage()));
+  //  }
+
   @GetMapping(value = "/test-protobuf-flux", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   @ResponseBody
   @Operation(
@@ -108,17 +150,29 @@ public class BusinessInfoMvcController {
                             description = "Stream of serialized BusinessPayload messages")))
       })
   public Flux<byte[]> getBusinessPayloadFlux() {
-    return Flux.range(1, 5)
+    return Flux.range(1, 100000)
+        // Add small delay to prevent overwhelming the client
+        .delayElements(Duration.ofNanos(500))
+        // Add basic backpressure handling
+//        .onBackpressureBuffer(1000)
         .map(
             i -> {
               BusinessPayload payload =
                   BusinessPayload.newBuilder()
                       .setName("John Doe " + i)
                       .setOrder(String.valueOf(i * 100))
-                      .setContent("content " + i) // In real case, this would be your 10K content
+                      .setContent(PayloadContentGenerator.generateRandomContent())
                       .build();
-              logger.debug("Generated payload {} with size {}", i, payload.getSerializedSize());
+
+              logger.info("Generated payload {} with size {}", i, payload.getSerializedSize());
               return payload.toByteArray();
-            });
+            })
+        // Add basic error handling
+        .onErrorResume(
+            error -> {
+              logger.error("Error in emitting payloads: {}", error.getMessage());
+              return Flux.empty();
+            })
+        .doOnComplete(() -> logger.info("Completed emitting all messages"));
   }
 }
