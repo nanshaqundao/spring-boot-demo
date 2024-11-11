@@ -28,14 +28,14 @@ public class BusinessInfoJdbcService {
         .subscribeOn(Schedulers.boundedElastic()); // Run on a non-blocking thread pool
   }
 
-  public Flux<BusinessInfo> findAllByNameReactiveWithBuffer(String name, int bufferSize) {
-    return Flux.defer(() -> Flux.fromIterable(repository.findByName(name)))
-        .buffer(bufferSize) // Sends data in chunks of the specified buffer size
-        .flatMap(Flux::fromIterable)
-        .switchIfEmpty(
-            Flux.error(
-                new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "No businesses found with name: " + name)))
-        .subscribeOn(Schedulers.boundedElastic()); // Run on a non-blocking thread pool
-  }
+  //  public Flux<BusinessInfo> findAllByNameReactiveWithBuffer(String name, int bufferSize) {
+  //    return Flux.defer(() -> Flux.fromIterable(repository.findByName(name)))
+  //        .buffer(bufferSize) // Sends data in chunks of the specified buffer size
+  //        .flatMap(Flux::fromIterable)
+  //        .switchIfEmpty(
+  //            Flux.error(
+  //                new ResponseStatusException(
+  //                    HttpStatus.NOT_FOUND, "No businesses found with name: " + name)))
+  //        .subscribeOn(Schedulers.boundedElastic()); // Run on a non-blocking thread pool
+  //  }
 }
