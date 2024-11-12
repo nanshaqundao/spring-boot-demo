@@ -12,7 +12,6 @@ import reactor.core.publisher.Flux;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 @Service
 public class BusinessClientService {
@@ -124,9 +123,9 @@ public class BusinessClientService {
     public void reset() {
       chunks.clear();
       prefixBuffer.setLength(0);
-      suffixBuffer.clear();  // Add this
+      suffixBuffer.clear(); // Add this
       foundPrefix = false;
-      foundSuffix = false;   // Add this
+      foundSuffix = false; // Add this
       isComplete = false;
     }
   }
@@ -297,5 +296,20 @@ public class BusinessClientService {
                 sink.error(new RuntimeException("Error parsing protobuf message", e));
               }
             });
+  }
+
+  public Flux<String> getContentStreamSse(String name) {
+    return webClient
+        .get()
+        .uri(
+            uriBuilder ->
+                uriBuilder.path("/api/stream/content/sse").queryParam("name", name).build())
+        .accept(MediaType.TEXT_EVENT_STREAM)
+        .retrieve()
+        .bodyToFlux(String.class)
+        .doOnSubscribe(s -> logger.debug("Starting SSE content stream for name: {}", name))
+        .doOnError(
+            e ->
+                logger.error("Error in SSE content stream for name: {}: {}", name, e.getMessage()));
   }
 }

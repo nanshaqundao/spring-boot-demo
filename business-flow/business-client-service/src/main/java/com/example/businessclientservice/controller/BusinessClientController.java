@@ -103,10 +103,9 @@ public class BusinessClientController {
             proto -> {
               int current = counter.incrementAndGet();
 
-                long currentTime = System.currentTimeMillis();
-                long elapsed = currentTime - startTime;
-                logger.info("Progress: {} messages processed in {} ms", current, elapsed);
-
+              long currentTime = System.currentTimeMillis();
+              long elapsed = currentTime - startTime;
+              logger.info("Progress: {} messages processed in {} ms", current, elapsed);
 
               try {
                 BusinessPayloadDto dto = BusinessPayloadDto.fromProto(proto);
@@ -118,6 +117,49 @@ public class BusinessClientController {
               } catch (JsonProcessingException e) {
                 logger.error("Error converting payload {} to JSON", current, e);
               }
+            })
+        .doOnComplete(
+            () -> {
+              long totalTime = System.currentTimeMillis() - startTime;
+              logger.info(
+                  "Completed processing {} messages in {} ms (avg: {} ms/msg)",
+                  counter.get(),
+                  totalTime,
+                  String.format("%.2f", totalTime / (double) counter.get()));
+            })
+        .doOnError(
+            error ->
+                logger.error(
+                    "Error processing stream after {} messages: {}",
+                    counter.get(),
+                    error.getMessage()))
+        .then(Mono.just(String.format("Processing started for %d messages", 100000)));
+  }
+
+  // new streaming
+
+  @GetMapping("/content-stream-sse")
+  public Mono<String> getContentStreamSse() {
+    final AtomicInteger counter = new AtomicInteger(0);
+    final long startTime = System.currentTimeMillis();
+    logger.info("Received large content stream request (SSE)");
+
+    return businessClientService
+        .getContentStreamSse("TimeMachine")
+        .doOnNext(
+            content -> {
+              int current = counter.incrementAndGet();
+
+              if (current % 1000 == 0) {
+                long currentTime = System.currentTimeMillis();
+                long elapsed = currentTime - startTime;
+                logger.info("Progress: {} messages processed in {} ms", current, elapsed);
+              }
+
+              logger.debug(
+                  "Processed content {}: {}",
+                  current,
+                  content.substring(0, Math.min(content.length(), 100)));
             })
         .doOnComplete(
             () -> {

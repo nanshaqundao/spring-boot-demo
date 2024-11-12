@@ -41,4 +41,21 @@ public class BusinessOrderPayloadJdbcService {
         .doOnError(e -> logger.error("Error converting to protobuf for name: {}", name, e))
         .publishOn(Schedulers.boundedElastic());
   }
+
+  // New method for streaming content as strings
+  public Flux<String> findAllContentByNameReactive(String name) {
+    return findAllByNameReactive(name)
+        .map(BusinessOrderPayload::getContent)
+        .filter(content -> content != null && !content.isEmpty())
+        .doOnSubscribe(s -> logger.info("Started streaming content for name: {}", name))
+        .doOnNext(
+            content ->
+                logger.debug(
+                    "Streaming content for {}, preview: {}",
+                    name,
+                    content.substring(0, Math.min(content.length(), 50)) + "..."))
+        .doOnComplete(() -> logger.info("Completed content streaming for name: {}", name))
+        .doOnError(e -> logger.error("Error streaming content for name: {}", name, e))
+        .publishOn(Schedulers.boundedElastic());
+  }
 }
