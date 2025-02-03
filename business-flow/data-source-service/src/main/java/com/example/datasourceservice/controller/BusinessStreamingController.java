@@ -27,6 +27,7 @@ public class BusinessStreamingController {
     return businessOrderPayloadJdbcService
         .findAllContentByNameReactive(name)
         .doOnSubscribe(s -> logger.info("Client subscribed to SSE stream for name: {}", name))
-        .doOnCancel(() -> logger.info("Client cancelled SSE stream for name: {}", name));
+        .doOnCancel(() -> logger.info("Client cancelled SSE stream for name: {}", name))
+        .doOnComplete(() -> logger.info("Client completed SSE stream for name: {}", name));
   }
 }
