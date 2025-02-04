@@ -12,7 +12,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class DataConsumerService {
@@ -156,6 +161,11 @@ public class DataConsumerService {
     }
 
     public Flux<List<MyObj>> consumeDynamicBatchByName(String name) {
+        AtomicLong totalProcessed = new AtomicLong(0);
+        AtomicLong expectedTotal = new AtomicLong(-1);
+        Set<Integer> receivedBatchIds = Collections.synchronizedSet(new HashSet<>());
+        AtomicInteger totalBatchCount = new AtomicInteger(-1);
+
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/api/data/batch-on-name-dynamic-size")
@@ -164,15 +174,49 @@ public class DataConsumerService {
                 .retrieve()
                 .bodyToFlux(String.class)
                 .map(this::deserializeBatch)
-                .doOnNext(batch -> log.debug("Received batch of {} items", batch.size()))
-                .doOnError(error -> log.error("Error consuming dynamic batch stream", error));
+                .doOnNext(wrapper -> {
+                    // 记录收到的批次ID
+                    receivedBatchIds.add(wrapper.getBatchId());
+
+                    // 记录总数和批次数
+                    if (expectedTotal.get() == -1) {
+                        expectedTotal.set(wrapper.getTotalSize());
+                        totalBatchCount.set(wrapper.getBatchCount());
+                    }
+
+                    // 累计处理数量
+                    totalProcessed.addAndGet(wrapper.getBatchSize());
+
+                    log.info("Received batch {}/{}, size: {}, total processed: {}/{}",
+                            wrapper.getBatchId(),
+                            wrapper.getBatchCount(),
+                            wrapper.getBatchSize(),
+                            totalProcessed.get(),
+                            wrapper.getTotalSize());
+                })
+                .doOnComplete(() -> {
+                    // 验证是否收到了所有批次
+                    for (int i = 0; i < totalBatchCount.get(); i++) {
+                        if (!receivedBatchIds.contains(i)) {
+                            log.error("Missing batch: {} of {}", i, totalBatchCount.get());
+                        }
+                    }
+
+                    // 验证总数是否匹配
+                    if (totalProcessed.get() != expectedTotal.get()) {
+                        log.error("Total count mismatch: processed {} but expected {}",
+                                totalProcessed.get(), expectedTotal.get());
+                    } else {
+                        log.info("Successfully processed all {} records in {} batches",
+                                totalProcessed.get(), totalBatchCount.get());
+                    }
+                })
+                .map(MyObjWrapper::getData);
     }
 
-    private List<MyObj> deserializeBatch(String batchData) {
+    private MyObjWrapper deserializeBatch(String batchData) {
         try {
-            MyObjWrapper wrapper = objectMapper.readValue(batchData, MyObjWrapper.class);
-            log.debug("Received batch with size: {}", wrapper.getBatchSize());
-            return wrapper.getData();
+            return objectMapper.readValue(batchData, MyObjWrapper.class);
         } catch (Exception e) {
             log.error("Error deserializing batch data", e);
             throw new RuntimeException("Failed to deserialize batch data", e);

@@ -169,6 +169,7 @@ public class DataStreamController {
     }
 
 
+
     @GetMapping(path = "/batch-on-name-dynamic-size", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> batchByNameDynamic(@RequestParam String name) {
         return Flux.defer(() -> {
@@ -194,33 +195,38 @@ public class DataStreamController {
 
                                         processedCount.addAndGet(batch.size());
 
-                                        MyObjWrapper wrapper = new MyObjWrapper(batch);
-                                        String jsonData = objectMapper.writeValueAsString(wrapper);
+                                        int batchCount = (int) Math.ceil((double) total / batchSize);
+                                        MyObjWrapper wrapper = new MyObjWrapper(
+                                                currentPage.get() - 1,  // batchId
+                                                batch,
+                                                total,                  // totalSize
+                                                batchCount             // batchCount
+                                        );
 
-                                        // 添加详细日志
-                                        log.info("Emitting batch - Page: {}, Batch size: {}, Processed: {}/{}, First object id: {}, Last object id: {}",
-                                                currentPage.get() - 1,
-                                                batch.size(),
+                                        log.info("Emitting batch - Page: {}/{}, Batch size: {}, Processed: {}/{}, First object id: {}, Last object id: {}",
+                                                wrapper.getBatchId(),
+                                                wrapper.getBatchCount(),
+                                                wrapper.getBatchSize(),
                                                 processedCount.get(),
-                                                total,
+                                                wrapper.getTotalSize(),
                                                 batch.isEmpty() ? "N/A" : batch.get(0).getId(),
                                                 batch.isEmpty() ? "N/A" : batch.get(batch.size() - 1).getId()
                                         );
 
-                                        return Mono.just(jsonData);
+                                        return Mono.just(objectMapper.writeValueAsString(wrapper));
                                     } catch (JsonProcessingException e) {
-                                        log.error("Error serializing batch", e);
+                                        log.error("Error serializing batch - BatchId: {}", currentPage.get() - 1, e);
                                         currentBatchSize.set(Math.max(10, currentBatchSize.get() / 2));
                                         return Mono.error(new RuntimeException("Failed to serialize batch data", e));
                                     } catch (Exception e) {
-                                        log.error("Error processing batch", e);
+                                        log.error("Error processing batch - BatchId: {}", currentPage.get() - 1, e);
                                         currentBatchSize.set(Math.max(10, currentBatchSize.get() / 2));
                                         return Mono.error(e);
                                     }
                                 }, 1)
-                                .doOnNext(str -> log.debug("Sending batch"))
                                 .delayElements(Duration.ofMillis(100));
                     })
+                    .doOnComplete(() -> log.info("Completed dynamic batch stream for name: {}", name))
                     .publishOn(Schedulers.boundedElastic());
         });
     }
