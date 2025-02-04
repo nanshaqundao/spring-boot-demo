@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: my_postgres_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  k6:
+    image: grafana/k6:latest
+    container_name: k6_test_container
+    entrypoint: /bin/sh
+    command: -c "tail -f /dev/null"
+    volumes:
+      - ./docker-k6:/scripts
+
+volumes:
+  postgres_data:
