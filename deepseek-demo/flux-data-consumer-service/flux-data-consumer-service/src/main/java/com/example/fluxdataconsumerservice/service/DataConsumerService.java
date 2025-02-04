@@ -1,6 +1,7 @@
 package com.example.fluxdataconsumerservice.service;
 
 import com.example.fluxdataconsumerservice.model.MyObj;
+import com.example.fluxdataconsumerservice.model.MyObjWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -146,10 +147,35 @@ public class DataConsumerService {
     // 统一的批量对象 JSON 解析方法
     private List<MyObj> parseJsonBatch(String jsonBatch) {
         try {
-            return objectMapper.readValue(jsonBatch, new TypeReference<List<MyObj>>() {});
+            return objectMapper.readValue(jsonBatch, new TypeReference<List<MyObj>>() {
+            });
         } catch (JsonProcessingException e) {
             log.error("Error parsing JSON batch: {}", jsonBatch, e);
             throw new RuntimeException("Error parsing JSON batch: " + e.getMessage(), e);
+        }
+    }
+
+    public Flux<List<MyObj>> consumeDynamicBatchByName(String name) {
+        return webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/data/batch-on-name-dynamic-size")
+                        .queryParam("name", name)
+                        .build())
+                .retrieve()
+                .bodyToFlux(String.class)
+                .map(this::deserializeBatch)
+                .doOnNext(batch -> log.debug("Received batch of {} items", batch.size()))
+                .doOnError(error -> log.error("Error consuming dynamic batch stream", error));
+    }
+
+    private List<MyObj> deserializeBatch(String batchData) {
+        try {
+            MyObjWrapper wrapper = objectMapper.readValue(batchData, MyObjWrapper.class);
+            log.debug("Received batch with size: {}", wrapper.getBatchSize());
+            return wrapper.getData();
+        } catch (Exception e) {
+            log.error("Error deserializing batch data", e);
+            throw new RuntimeException("Failed to deserialize batch data", e);
         }
     }
 }

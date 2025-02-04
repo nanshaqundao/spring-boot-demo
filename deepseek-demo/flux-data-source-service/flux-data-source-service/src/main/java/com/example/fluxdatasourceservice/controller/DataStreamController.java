@@ -1,6 +1,7 @@
 package com.example.fluxdatasourceservice.controller;
 
 import com.example.fluxdatasourceservice.model.MyObj;
+import com.example.fluxdatasourceservice.model.MyObjWrapper;
 import com.example.fluxdatasourceservice.repository.MyObjRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,6 +20,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RestController
 @RequestMapping("/api/data")
@@ -164,5 +166,62 @@ public class DataStreamController {
                 .timeout(Duration.ofMinutes(5))
                 .doOnError(e -> log.error("Error in batch stream for name: {}", name, e))
                 .doOnComplete(() -> log.info("Completed batch stream for name: {}", name));
+    }
+
+
+    @GetMapping(path = "/batch-on-name-dynamic-size", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> batchByNameDynamic(@RequestParam String name) {
+        return Flux.defer(() -> {
+            log.info("Starting dynamic batch stream by name: {}", name);
+
+            return Mono.fromCallable(() -> myObjRepository.countByName(name))
+                    .subscribeOn(Schedulers.boundedElastic())
+                    .flatMapMany(total -> {
+                        int initialBatchSize = 30;
+                        AtomicInteger currentPage = new AtomicInteger(0);
+                        AtomicInteger currentBatchSize = new AtomicInteger(initialBatchSize);
+                        AtomicInteger processedCount = new AtomicInteger(0);
+
+                        return Flux.range(0, Integer.MAX_VALUE)
+                                .takeWhile(i -> processedCount.get() < total)
+                                .flatMap(i -> {
+                                    try {
+                                        int batchSize = currentBatchSize.get();
+                                        List<MyObj> batch = myObjRepository.findByName(
+                                                name,
+                                                PageRequest.of(currentPage.getAndIncrement(), batchSize)
+                                        );
+
+                                        processedCount.addAndGet(batch.size());
+
+                                        MyObjWrapper wrapper = new MyObjWrapper(batch);
+                                        String jsonData = objectMapper.writeValueAsString(wrapper);
+
+                                        // 添加详细日志
+                                        log.info("Emitting batch - Page: {}, Batch size: {}, Processed: {}/{}, First object id: {}, Last object id: {}",
+                                                currentPage.get() - 1,
+                                                batch.size(),
+                                                processedCount.get(),
+                                                total,
+                                                batch.isEmpty() ? "N/A" : batch.get(0).getId(),
+                                                batch.isEmpty() ? "N/A" : batch.get(batch.size() - 1).getId()
+                                        );
+
+                                        return Mono.just(jsonData);
+                                    } catch (JsonProcessingException e) {
+                                        log.error("Error serializing batch", e);
+                                        currentBatchSize.set(Math.max(10, currentBatchSize.get() / 2));
+                                        return Mono.error(new RuntimeException("Failed to serialize batch data", e));
+                                    } catch (Exception e) {
+                                        log.error("Error processing batch", e);
+                                        currentBatchSize.set(Math.max(10, currentBatchSize.get() / 2));
+                                        return Mono.error(e);
+                                    }
+                                }, 1)
+                                .doOnNext(str -> log.debug("Sending batch"))
+                                .delayElements(Duration.ofMillis(100));
+                    })
+                    .publishOn(Schedulers.boundedElastic());
+        });
     }
 }

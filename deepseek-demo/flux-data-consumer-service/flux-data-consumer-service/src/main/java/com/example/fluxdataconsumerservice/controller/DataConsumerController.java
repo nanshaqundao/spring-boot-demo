@@ -73,4 +73,13 @@ public class DataConsumerController {
         );
         return "Batch by name started: " + name;
     }
+
+    @GetMapping("/batch-by-name-dynamic")
+    public String startDynamicBatchByName(@RequestParam String name) {
+        log.info("Starting dynamic batch by name: {}", name);
+        dataProcessor.processBatches(
+                dataConsumerService.consumeDynamicBatchByName(name)
+        );
+        return "Dynamic batch by name started: " + name;
+    }
 }

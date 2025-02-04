@@ -1,4 +1,4 @@
-package com.example.fluxdatasourceservice.model;
+package com.example.fluxdataconsumerservice.model;
 
 import java.util.List;
 
